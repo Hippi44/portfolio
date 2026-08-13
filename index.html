@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hippilokkery, лендинги и Telegram-боты под ключ</title>
+<meta name="description" content="Собираю лендинги, Telegram-ботов и автоматизацию процессов. Заявка из формы уходит мне в Telegram одним нажатием.">
+<meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hippilokkery, лендинги и Telegram-боты под ключ">
+<meta property="og:description" content="Сайты, боты и автоматизация рутины. Работающий результат, а не красивый макет.">
+<meta property="og:image" content="https://hippi44.github.io/portfolio/assets/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+<link rel="preload" href="assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/css/styles.css">
+
+<script>
+  /* Тему ставим до первой отрисовки, иначе на загрузке мелькает светлый фон. */
+  (function () {
+    try {
+      var saved = localStorage.getItem('hl-theme');
+      var dark = saved ? saved === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    } catch (e) { /* приватный режим, остаётся тема из атрибута */ }
+    /* Метка «скрипты работают». Без неё блоки .reveal остались бы невидимыми. */
+    document.documentElement.classList.add('js');
+  })();
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Hippilokkery",
+  "description": "Разработка лендингов, Telegram-ботов и автоматизация бизнес-процессов",
+  "areaServed": "RU",
+  "availableLanguage": "ru",
+  "sameAs": ["https://t.me/Hippilokkery"],
+  "knowsAbout": ["Лендинги", "Telegram-боты", "Автоматизация процессов", "Интеграции по API"]
+}
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main">К основному содержимому</a>
+<!--
+  Спрайт иконок Phosphor (лицензия MIT), вставлен прямо в разметку.
+  Инлайн, а не отдельным файлом: так <use href="#i-..."> работает и при открытии
+  index.html напрямую с диска, где загрузка внешнего svg запрещена политикой браузера.
+  Новую иконку добавляйте сюда же, symbol с id вида i-название.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+<symbol id="i-arrow-up-right" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 256 256" fill="currentColor"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol>
+<symbol id="i-check" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
+<symbol id="i-copy" viewBox="0 0 256 256" fill="currentColor"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 256 256" fill="currentColor"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol>
+<symbol id="i-moon" viewBox="0 0 256 256" fill="currentColor"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></symbol>
+<symbol id="i-list" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></symbol>
+<symbol id="i-x" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol>
+<symbol id="i-caret-down" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></symbol>
+<symbol id="i-paper-plane-tilt" viewBox="0 0 256 256" fill="currentColor"><path d="M227.32,28.68a16,16,0,0,0-15.66-4.08l-.15,0L19.57,82.84a16,16,0,0,0-2.49,29.8L102,154l41.3,84.87A15.86,15.86,0,0,0,157.74,248q.69,0,1.38-.06a15.88,15.88,0,0,0,14-11.51l58.2-191.94c0-.05,0-.1,0-.15A16,16,0,0,0,227.32,28.68ZM157.83,231.85l-.05.14,0-.07-40.06-82.3,48-48a8,8,0,0,0-11.31-11.31l-48,48L24.08,98.25l-.07,0,.14,0L216,40Z"/></symbol>
+<symbol id="i-telegram-logo" viewBox="0 0 256 256" fill="currentColor"><path d="M228.88,26.19a9,9,0,0,0-9.16-1.57L17.06,103.93a14.22,14.22,0,0,0,2.43,27.21L72,141.45V200a15.92,15.92,0,0,0,10,14.83,15.91,15.91,0,0,0,17.51-3.73l25.32-26.26L165,220a15.88,15.88,0,0,0,10.51,4,16.3,16.3,0,0,0,5-.79,15.85,15.85,0,0,0,10.67-11.63L231.77,35A9,9,0,0,0,228.88,26.19Zm-61.14,36L78.15,126.35l-49.6-9.73ZM88,200V152.52l24.79,21.74Zm87.53,8L92.85,135.5l119-85.29Z"/></symbol>
+<symbol id="i-warning-circle" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></symbol>
+<symbol id="i-circle-notch" viewBox="0 0 256 256" fill="currentColor"><path d="M232,128a104,104,0,0,1-208,0c0-41,23.81-78.36,60.66-95.27a8,8,0,0,1,6.68,14.54C60.15,61.59,40,93.27,40,128a88,88,0,0,0,176,0c0-34.73-20.15-66.41-51.34-80.73a8,8,0,0,1,6.68-14.54C208.19,49.64,232,87,232,128Z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"/></symbol>
+</svg>
+
+<header class="site-header" id="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top" aria-label="Hippilokkery, в начало страницы">
+      <span class="brand-mark" aria-hidden="true">HL</span>
+      <span class="brand-name">Hippilokkery</span>
+    </a>
+
+    <nav class="nav-desktop" aria-label="Основная навигация">
+      <a href="#services">Услуги</a>
+      <a href="#process">Процесс</a>
+      <a href="#work">Кейсы</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" type="button" id="theme-toggle" aria-label="Переключить тему">
+        <svg class="ico ico-sun" aria-hidden="true"><use href="#i-sun"></use></svg>
+        <svg class="ico ico-moon" aria-hidden="true"><use href="#i-moon"></use></svg>
+      </button>
+      <a class="btn btn-primary btn-sm header-cta" href="#contact">Обсудить проект</a>
+      <button class="icon-btn nav-burger" type="button" id="nav-toggle"
+              aria-label="Меню" aria-expanded="false" aria-controls="mobile-nav">
+        <svg class="ico ico-open" aria-hidden="true"><use href="#i-list"></use></svg>
+        <svg class="ico ico-close" aria-hidden="true"><use href="#i-x"></use></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobile-nav" hidden>
+  <nav class="wrap mobile-nav-inner" aria-label="Мобильная навигация">
+    <a href="#services"><span>Услуги</span><svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a>
+    <a href="#process"><span>Процесс</span><svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a>
+    <a href="#work"><span>Кейсы</span><svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a>
+    <a href="#faq"><span>Вопросы</span><svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg></a>
+    <a class="btn btn-primary mobile-nav-cta" href="#contact">Обсудить проект</a>
+  </nav>
+</div>
+
+<main id="main">
+  <span id="top"></span>
+
+  <!-- ================================ HERO ================================ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="kicker reveal">Сайты, боты, автоматизация</p>
+        <h1 class="h-display reveal" style="--d:1">
+          Собираю то, что<br>приносит заявки
+        </h1>
+        <p class="lead hero-lead reveal" style="--d:2">
+          Лендинги, Telegram-боты и связки между сервисами. Работающий результат, а не красивый макет.
+        </p>
+        <div class="hero-actions reveal" style="--d:3">
+          <a class="btn btn-primary btn-lg" href="#contact">
+            Обсудить проект
+            <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+          </a>
+          <a class="btn btn-ghost btn-lg" href="#services">Что я делаю</a>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" style="--d:2">
+        <!-- Две версии одной сцены. Нижняя видна всегда, верхняя проявляется
+             в тёмной теме, см. .shot-img-dark в styles.css. -->
+        <figure class="shot shot-hero" data-slot="hero">
+          <img class="shot-img" src="assets/img/heroBlock.webp"
+               alt="Рабочее место: сайт с формой заявок на экране, Telegram-бот в телефоне и график обращений"
+               width="1268" height="1241" loading="eager" fetchpriority="high" decoding="async"
+               onerror="this.closest('.shot').classList.add('shot-empty')">
+          <img class="shot-img shot-img-dark" src="assets/img/heroBlockDark.webp"
+               alt="" aria-hidden="true"
+               width="1268" height="1241" loading="eager" decoding="async">
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================ СТЕК ================================ -->
+  <section class="stack-band" aria-label="Технологии, на которых работаю">
+    <div class="marquee" id="stack-marquee">
+      <div class="marquee-track" id="stack-track"><!-- логотипы вставляет JS --></div>
+    </div>
+  </section>
+  <!-- =============================== УСЛУГИ =============================== -->
+  <!-- Layout-семейство: асимметричная бенто-сетка. Ровно 3 ячейки под 3 услуги,
+       первая широкая с картинкой, две узкие снизу. Пустых ячеек нет. -->
+  <section class="section services" id="services">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <h2 class="h-section">Три вещи, которые я делаю хорошо</h2>
+        <p class="lead">Берусь за то, что могу довести до работающего результата и потом поддерживать.</p>
+      </header>
+
+      <div class="services-grid">
+
+        <article class="svc svc-wide reveal">
+          <div class="svc-media">
+            <figure class="shot" data-slot="landing">
+              <img class="shot-img" src="assets/img/lendingPromo.webp"
+                   alt="Лендинг на большом экране: заголовок, кнопка заявки и блок преимуществ"
+                   width="1448" height="1086" loading="lazy" decoding="async"
+                   onerror="this.closest('.shot').classList.add('shot-empty')">
+              <img class="shot-img shot-img-dark" src="assets/img/lendingPromoDark.webp"
+                   alt="" aria-hidden="true"
+                   width="1448" height="1086" loading="lazy" decoding="async">
+            </figure>
+          </div>
+          <div class="svc-body">
+            <h3 class="h-card">Лендинги и промо-сайты</h3>
+            <p class="svc-summary">
+              Одностраничники под запуск продукта, услугу или рекламный трафик. От структуры и текста до аналитики.
+            </p>
+            <ul class="ticks">
+              <li>Прототип и структура под оффер</li>
+              <li>Дизайн и адаптив под телефон</li>
+              <li>Скорость загрузки и база под SEO</li>
+              <li>Формы, метрика, передача заявок в CRM</li>
+            </ul>
+            <a class="link-arrow" href="#contact">
+              Обсудить проект
+              <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="svc svc-tile reveal" style="--d:1">
+          <div class="svc-media svc-media-tile">
+            <figure class="shot" data-slot="bots">
+              <img class="shot-img" src="assets/img/telegramBot.webp"
+                   alt="Telegram-бот в чате: приветствие, список умений и кнопки для заявки"
+                   width="1672" height="941" loading="lazy" decoding="async"
+                   onerror="this.closest('.shot').classList.add('shot-empty')">
+              <img class="shot-img shot-img-dark" src="assets/img/telegramBotDark.webp"
+                   alt="" aria-hidden="true"
+                   width="1672" height="941" loading="lazy" decoding="async">
+            </figure>
+          </div>
+          <div class="svc-body">
+            <h3 class="h-card">Telegram-боты</h3>
+            <p class="svc-summary">
+              Боты для заявок, записи, оплат и поддержки. С понятными сценариями и админкой.
+            </p>
+            <ul class="ticks">
+              <li>Сценарий диалога и логика ветвлений</li>
+              <li>Приём заявок и уведомления вам</li>
+              <li>Оплата, рассылки, база клиентов</li>
+              <li>Хостинг, мониторинг, исходники вам</li>
+            </ul>
+            <a class="link-arrow" href="#contact">
+              Обсудить проект
+              <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+            </a>
+          </div>
+        </article>
+
+        <article class="svc svc-tile reveal" style="--d:2">
+          <div class="svc-media svc-media-tile">
+            <figure class="shot" data-slot="automation">
+              <img class="shot-img" src="assets/img/automaticProces.webp"
+                   alt="Схема автоматизации: Telegram, формы, таблицы и почта связаны с триггером, отчётами и уведомлениями"
+                   width="1672" height="941" loading="lazy" decoding="async"
+                   onerror="this.closest('.shot').classList.add('shot-empty')">
+              <img class="shot-img shot-img-dark" src="assets/img/automaticProcesDark.webp"
+                   alt="" aria-hidden="true"
+                   width="1672" height="941" loading="lazy" decoding="async">
+            </figure>
+          </div>
+          <div class="svc-body">
+            <h3 class="h-card">Автоматизация процессов</h3>
+            <p class="svc-summary">
+              Связываю сайт, CRM, таблицы и мессенджеры, чтобы данные ходили сами и никто не копировал их руками.
+            </p>
+            <ul class="ticks">
+              <li>Разбор текущей рутины по шагам</li>
+              <li>Сценарии в n8n или Make</li>
+              <li>Интеграции по API и вебхукам</li>
+              <li>Инструкция и передача команде</li>
+            </ul>
+            <a class="link-arrow" href="#contact">
+              Обсудить проект
+              <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================== ПРОЦЕСС ============================== -->
+  <!-- Layout-семейство: таймлайн. Линия рисуется по scroll-driven анимации. -->
+  <section class="section process" id="process">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <h2 class="h-section">Как идёт работа</h2>
+        <p class="lead">Без исчезновений на неделю и без сюрпризов в счёте.</p>
+      </header>
+
+      <ol class="timeline">
+        <li class="tl-step reveal">
+          <div class="tl-marker" aria-hidden="true"></div>
+          <div class="tl-content">
+            <h3 class="tl-title">Созвон</h3>
+            <p>Разбираем задачу, аудиторию и то, что считаем результатом. Полчаса, без обязательств.</p>
+            <p class="tl-meta">
+              <svg class="ico" aria-hidden="true"><use href="#i-clock"></use></svg>
+              30 минут
+            </p>
+          </div>
+        </li>
+        <li class="tl-step reveal" style="--d:1">
+          <div class="tl-marker" aria-hidden="true"></div>
+          <div class="tl-content">
+            <h3 class="tl-title">Смета</h3>
+            <p>Фиксирую объём, сроки и цену письменно. Пока не согласовали, работа не начинается.</p>
+            <p class="tl-meta">
+              <svg class="ico" aria-hidden="true"><use href="#i-clock"></use></svg>
+              <!-- TODO: свой срок -->1 день
+            </p>
+          </div>
+        </li>
+        <li class="tl-step reveal" style="--d:2">
+          <div class="tl-marker" aria-hidden="true"></div>
+          <div class="tl-content">
+            <h3 class="tl-title">Сборка</h3>
+            <p>Прототип, дизайн, код. Показываю промежуточный результат, правки вносим по ходу.</p>
+            <p class="tl-meta">
+              <svg class="ico" aria-hidden="true"><use href="#i-clock"></use></svg>
+              основной этап
+            </p>
+          </div>
+        </li>
+        <li class="tl-step reveal" style="--d:3">
+          <div class="tl-marker" aria-hidden="true"></div>
+          <div class="tl-content">
+            <h3 class="tl-title">Запуск</h3>
+            <p>Домен, аналитика, тесты на реальных телефонах. Потом правки по мелочи.</p>
+            <p class="tl-meta">
+              <svg class="ico" aria-hidden="true"><use href="#i-clock"></use></svg>
+              <!-- TODO: свой срок поддержки -->2 недели поддержки
+            </p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================================ КЕЙСЫ =============================== -->
+  <!--
+    КАК ДОБАВИТЬ РЕАЛЬНЫЙ КЕЙС
+    1. Положите обложку в assets/img/ (1200x760 для широкой карточки, 900x760 для узкой).
+    2. У <article> уберите класс `case-slot`.
+    3. Замените заголовок, тип, год, описание и строку результата.
+    4. Если есть ссылка на проект, поменяйте <div class="case-card"> на
+       <a class="case-card" href="https://..." target="_blank" rel="noopener">.
+    Чтобы временно спрятать всю секцию, добавьте hidden к <section id="work">.
+  -->
+  <section class="section work" id="work">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <p class="kicker">Портфолио</p>
+        <h2 class="h-section">Кейсы</h2>
+        <p class="lead">Раздел наполняется. Пока могу прислать примеры под вашу задачу прямо в переписке.</p>
+      </header>
+
+      <div class="work-grid">
+
+        <article class="case case-wide reveal">
+          <a class="case-card" href="https://hippi44.github.io/lendingPage/" target="_blank" rel="noopener">
+            <figure class="shot case-shot" data-slot="case-1">
+              <img src="assets/img/nokturn.webp" alt="Лендинг NOKTURN: детейлинг-студия и автосервис, полировка, керамика 9H и кузовной ремонт"
+                   width="1536" height="1024" loading="lazy" decoding="async"
+                   onerror="this.closest('.shot').classList.add('shot-empty')">
+            </figure>
+            <div class="case-meta">
+              <h3 class="case-title">NOKTURN</h3>
+              <p class="case-kind">Лендинг · 2026</p>
+            </div>
+            <p class="case-note">Детейлинг-студия и автосервис в Москве: полировка, керамика 9H, кузовной ремонт.</p>
+          </a>
+        </article>
+
+        <article class="case case-narrow reveal" style="--d:1">
+          <a class="case-card" href="https://t.me/buyzone_store_bot" target="_blank" rel="noopener">
+            <figure class="shot case-shot" data-slot="case-2">
+              <img src="assets/img/BuyZone.png" alt="Telegram-бот BuyZone — каталог и заказ товаров" width="900" height="760" loading="lazy" decoding="async" onerror="this.closest('.shot').classList.add('shot-empty')">
+            </figure>
+            <div class="case-meta">
+              <h3 class="case-title">BuyZone</h3>
+              <p class="case-kind">Telegram-бот · 2026</p>
+            </div>
+            <p class="case-note">Telegram-бот @buyzone_store_bot для каталога и заказа товаров.</p>
+          </a>
+        </article>
+
+        <article class="case case-narrow case-slot reveal" style="--d:2">
+          <div class="case-card">
+            <figure class="shot case-shot" data-slot="case-3">
+              <img src="assets/img/work-slot-3.webp" alt="" width="900" height="760" loading="lazy" decoding="async" onerror="this.closest('.shot').classList.add('shot-empty')">
+            </figure>
+            <div class="case-meta">
+              <h3 class="case-title">Место под кейс</h3>
+              <p class="case-kind">Автоматизация</p>
+            </div>
+            <p class="case-note">Здесь появится задача клиента, что сделал и чем всё закончилось.</p>
+          </div>
+        </article>
+
+        <article class="case case-wide case-slot reveal" style="--d:3">
+          <div class="case-card">
+            <figure class="shot case-shot" data-slot="case-4">
+              <img src="assets/img/work-slot-4.webp" alt="" width="1200" height="760" loading="lazy" decoding="async" onerror="this.closest('.shot').classList.add('shot-empty')">
+            </figure>
+            <div class="case-meta">
+              <h3 class="case-title">Место под кейс</h3>
+              <p class="case-kind">Лендинг и бот</p>
+            </div>
+            <p class="case-note">Здесь появится задача клиента, что сделал и чем всё закончилось.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================== ВОПРОСЫ ============================== -->
+  <!-- Layout-семейство: аккордеон. Шесть пунктов, обычный список тут был бы хуже. -->
+  <section class="section faq" id="faq">
+    <div class="wrap faq-wrap">
+      <header class="section-head reveal">
+        <h2 class="h-section">Частые вопросы</h2>
+      </header>
+
+      <div class="accordion" id="accordion">
+
+        <div class="acc-item reveal">
+          <h3>
+            <button class="acc-trigger" type="button" aria-expanded="false" aria-controls="acc-1" id="acc-1-btn">
+              <span>От чего зависит цена?</span>
+              <svg class="ico acc-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </button>
+          </h3>
+          <div class="acc-panel" id="acc-1" role="region" aria-labelledby="acc-1-btn" hidden>
+            <p>От количества экранов и сценариев, сложности интеграций и того, есть ли готовые тексты и фирменный стиль. После короткого созвона называю вилку, после разбора вводных фиксирую точную сумму в смете.</p>
+          </div>
+        </div>
+
+        <div class="acc-item reveal">
+          <h3>
+            <button class="acc-trigger" type="button" aria-expanded="false" aria-controls="acc-2" id="acc-2-btn">
+              <span>Как проходит оплата?</span>
+              <svg class="ico acc-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </button>
+          </h3>
+          <!-- TODO: сверьте с вашими условиями -->
+          <div class="acc-panel" id="acc-2" role="region" aria-labelledby="acc-2-btn" hidden>
+            <p>Обычно половина предоплатой и остаток после приёмки. Крупные проекты делим на этапы и платим по частям.</p>
+          </div>
+        </div>
+
+        <div class="acc-item reveal">
+          <h3>
+            <button class="acc-trigger" type="button" aria-expanded="false" aria-controls="acc-3" id="acc-3-btn">
+              <span>Исходники и доступы остаются у меня?</span>
+              <svg class="ico acc-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </button>
+          </h3>
+          <div class="acc-panel" id="acc-3" role="region" aria-labelledby="acc-3-btn" hidden>
+            <p>Да. Репозиторий, домен, хостинг и аккаунты оформляются на вас. При передаче показываю, где что лежит, и оставляю инструкцию.</p>
+          </div>
+        </div>
+
+        <div class="acc-item reveal">
+          <h3>
+            <button class="acc-trigger" type="button" aria-expanded="false" aria-controls="acc-4" id="acc-4-btn">
+              <span>Что с правками после запуска?</span>
+              <svg class="ico acc-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </button>
+          </h3>
+          <!-- TODO: свой срок бесплатных правок -->
+          <div class="acc-panel" id="acc-4" role="region" aria-labelledby="acc-4-btn" hidden>
+            <p>Две недели после сдачи правлю мелочи и баги бесплатно. Дальше можно взять поддержку на месяц или обращаться разово.</p>
+          </div>
+        </div>
+
+        <div class="acc-item reveal">
+          <h3>
+            <button class="acc-trigger" type="button" aria-expanded="false" aria-controls="acc-5" id="acc-5-btn">
+              <span>Нужен готовый макет, или дизайн на вас?</span>
+              <svg class="ico acc-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </button>
+          </h3>
+          <div class="acc-panel" id="acc-5" role="region" aria-labelledby="acc-5-btn" hidden>
+            <p>Могу вести проект целиком: структура, тексты, дизайн, код. Если у вас есть макет в Figma или брендбук, работаю по ним и это выходит быстрее.</p>
+          </div>
+        </div>
+
+        <div class="acc-item reveal">
+          <h3>
+            <button class="acc-trigger" type="button" aria-expanded="false" aria-controls="acc-6" id="acc-6-btn">
+              <span>Сможете доработать то, что уже есть?</span>
+              <svg class="ico acc-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </button>
+          </h3>
+          <div class="acc-panel" id="acc-6" role="region" aria-labelledby="acc-6-btn" hidden>
+            <p>Да, если код можно поддерживать. Сначала смотрю проект и честно говорю, что дешевле: доработать или собрать заново.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== КОНТАКТ =============================== -->
+  <section class="section contact" id="contact">
+    <div class="wrap contact-grid">
+
+      <div class="contact-copy reveal">
+        <h2 class="h-section">Расскажите задачу</h2>
+        <p class="lead">
+          Заполните форму и нажмите кнопку. Откроется мой Telegram с уже готовым сообщением, останется отправить.
+        </p>
+        <p class="contact-fallback">
+          Текст заявки дополнительно копируется в буфер обмена. Если Telegram открылся с пустым полем, вставьте его сочетанием Ctrl+V.
+        </p>
+        <a class="contact-direct" href="https://t.me/Hippilokkery" target="_blank" rel="noopener noreferrer">
+          <svg class="ico" aria-hidden="true"><use href="#i-telegram-logo"></use></svg>
+          <span>Или напишите напрямую: @Hippilokkery</span>
+        </a>
+      </div>
+
+      <!-- Форма не уходит на сервер: она собирает текст и открывает Telegram.
+           novalidate, потому что сообщения об ошибках рисуем сами, единым стилем. -->
+      <form class="lead-form panel reveal" id="lead-form" novalidate>
+        <div class="field">
+          <label for="f-name">Как вас зовут</label>
+          <input type="text" id="f-name" name="name" autocomplete="name" placeholder="Например, Марина" required>
+          <p class="field-error" id="f-name-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="f-kind-label">Что нужно сделать</span>
+          <div class="chips" role="radiogroup" aria-labelledby="f-kind-label" id="f-kind">
+            <label class="chip"><input type="radio" name="kind" value="Лендинг" checked><span>Лендинг</span></label>
+            <label class="chip"><input type="radio" name="kind" value="Telegram-бот"><span>Telegram-бот</span></label>
+            <label class="chip"><input type="radio" name="kind" value="Автоматизация"><span>Автоматизация</span></label>
+            <label class="chip"><input type="radio" name="kind" value="Пока не определился"><span>Пока не решил</span></label>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="f-budget">Бюджет</label>
+            <div class="select-shell">
+              <select id="f-budget" name="budget">
+                <option value="нужен ориентир">Нужен ориентир</option>
+                <option value="до 50 000 ₽">до 50 000 ₽</option>
+                <option value="от 50 000 до 100 000 ₽">от 50 000 до 100 000 ₽</option>
+                <option value="от 100 000 до 300 000 ₽">от 100 000 до 300 000 ₽</option>
+                <option value="больше 300 000 ₽">больше 300 000 ₽</option>
+              </select>
+              <svg class="ico select-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="f-term">Сроки</label>
+            <div class="select-shell">
+              <select id="f-term" name="term">
+                <option value="гибкие">Сроки гибкие</option>
+                <option value="срочно">Срочно</option>
+                <option value="от 2 до 4 недель">От 2 до 4 недель</option>
+                <option value="от 1 до 2 месяцев">От 1 до 2 месяцев</option>
+              </select>
+              <svg class="ico select-chevron" aria-hidden="true"><use href="#i-caret-down"></use></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-link">Ссылка на сайт или ТЗ <span class="field-opt">необязательно</span></label>
+          <input type="url" id="f-link" name="link" inputmode="url" placeholder="https://">
+          <p class="field-error" id="f-link-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="f-message">Задача в двух предложениях</label>
+          <textarea id="f-message" name="message" rows="4" required
+                    aria-describedby="f-message-hint"
+                    placeholder="Что за продукт, кто покупает, что должно происходить после заявки"></textarea>
+          <p class="field-hint" id="f-message-hint">Чем конкретнее, тем точнее оценка.</p>
+          <p class="field-error" id="f-message-error" hidden></p>
+        </div>
+
+        <button class="btn btn-primary btn-lg btn-block" type="submit" id="submit-btn">
+          <svg class="ico btn-ico-idle" aria-hidden="true"><use href="#i-paper-plane-tilt"></use></svg>
+          <svg class="ico btn-ico-busy" aria-hidden="true"><use href="#i-circle-notch"></use></svg>
+          <span id="submit-label">Отправить в Telegram</span>
+        </button>
+
+        <!-- Состояние после отправки: подтверждение плюс запасные пути -->
+        <div class="form-result" id="form-result" hidden role="status" aria-live="polite">
+          <p class="form-result-head">
+            <svg class="ico" aria-hidden="true"><use href="#i-check"></use></svg>
+            <span id="form-result-text">Telegram открыт, сообщение готово к отправке.</span>
+          </p>
+          <div class="form-result-actions">
+            <a class="btn btn-ghost btn-sm" id="result-open" href="https://t.me/Hippilokkery" target="_blank" rel="noopener noreferrer">
+              Открыть Telegram снова
+            </a>
+            <button class="btn btn-ghost btn-sm" type="button" id="result-copy">
+              <svg class="ico" aria-hidden="true"><use href="#i-copy"></use></svg>
+              <span id="result-copy-label">Скопировать текст</span>
+            </button>
+          </div>
+        </div>
+
+        <p class="form-error-top" id="form-error" hidden role="alert">
+          <svg class="ico" aria-hidden="true"><use href="#i-warning-circle"></use></svg>
+          <span id="form-error-text"></span>
+        </p>
+      </form>
+
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <span class="brand-mark" aria-hidden="true">HL</span>
+      <div>
+        <p class="footer-name">Hippilokkery</p>
+        <p class="footer-role">Лендинги, Telegram-боты, автоматизация</p>
+      </div>
+    </div>
+
+    <nav class="footer-nav" aria-label="Навигация в подвале">
+      <a href="#services">Услуги</a>
+      <a href="#process">Процесс</a>
+      <a href="#work">Кейсы</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+
+    <a class="btn btn-primary btn-sm" href="#contact">Обсудить проект</a>
+  </div>
+</footer>
+
+<script src="assets/js/main.js" defer></script>
+
+</body>
+</html>

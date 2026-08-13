@@ -1,0 +1,1235 @@
+/* ===========================================================================
+   Hippilokkery, лендинг. Чистый CSS, без препроцессоров и утилити-фреймворков.
+
+   ПРАВИЛА, КОТОРЫЕ ДЕЙСТВУЮТ НА ВЕСЬ ФАЙЛ
+
+   Тема   одна на всю страницу, секции не инвертируются.
+          Токены живут в :root (светлая) и [data-theme="dark"] (тёмная).
+          Атрибут ставит инлайн-скрипт в <head> до первой отрисовки.
+
+   Цвет   ровно один акцент: #ff5a1f. Второго акцента на странице нет.
+          Для текста берётся --accent-text, он подобран под контраст AA.
+
+   Форма  одна система скруглений, не смешивать:
+            кнопки и чипы  -> 999px (таблетка)
+            карточки, панели -> 20px
+            поля ввода     -> 12px
+
+   Сетка  контейнер .wrap, max-width 1320px.
+          Брейкпоинты: 640, 768, 900, 1024, 1280.
+
+   Движение  анимируем только transform и opacity.
+             всё, что двигается, выключается под prefers-reduced-motion.
+   =========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. ТОКЕНЫ
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --canvas: #f6f6f3;
+  --surface: #fcfcfa;
+  --surface-2: #eeeeea;
+
+  --ink: #16161a;
+  --ink-2: #56565e;
+  --ink-3: #6e6e77;
+
+  --line: #e2e2db;
+  --line-2: #cfcfc7;
+
+  --accent: #ff5a1f;
+  --accent-text: #c63603;   /* акцент как текст, контраст AA на светлом */
+  --accent-ink: #180a03;    /* текст на акцентной заливке */
+  --accent-soft: #fceee7;
+
+  --shadow-tint: 26 22 18;  /* тень тонируется под фон, чистого чёрного нет */
+  --shadow-lift: 0 1px 2px rgb(var(--shadow-tint) / .06), 0 12px 32px -12px rgb(var(--shadow-tint) / .16);
+  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / .05), 0 32px 64px -32px rgb(var(--shadow-tint) / .22);
+
+  --radius-card: 20px;
+  --radius-input: 12px;
+  --radius-pill: 999px;
+
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --header-h: 68px;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #0b0b0c;
+  --surface: #131316;
+  --surface-2: #1b1b1f;
+
+  --ink: #f3f3f0;
+  --ink-2: #a3a3a9;
+  --ink-3: #8b8b94;
+
+  --line: #26262b;
+  --line-2: #35353c;
+
+  --accent: #ff5a1f;
+  --accent-text: #ff7f4d;   /* на тёмном акцент осветляем, иначе теряется */
+  --accent-ink: #180a03;
+  --accent-soft: #241209;
+
+  --shadow-tint: 0 0 0;
+  --shadow-lift: 0 1px 2px rgb(var(--shadow-tint) / .3), 0 12px 32px -12px rgb(var(--shadow-tint) / .5);
+  --shadow-panel: 0 1px 2px rgb(var(--shadow-tint) / .3), 0 32px 64px -28px rgb(var(--shadow-tint) / .7);
+}
+
+/* ---------------------------------------------------------------------------
+   2. БАЗА
+--------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+* { margin: 0; }
+
+html {
+  scroll-behavior: smooth;
+  /* чтобы якорь не уезжал под фиксированную шапку */
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: 'Onest', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color .3s var(--ease), color .3s var(--ease);
+}
+
+body.is-locked { overflow: hidden; }
+
+img, svg, video { display: block; max-width: 100%; }
+img { height: auto; }
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button { cursor: pointer; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  letter-spacing: -.03em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+p { text-wrap: pretty; }
+
+ul { list-style: none; padding: 0; }
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translate(-50%, -200%);
+  z-index: 100;
+  padding: .7rem 1.2rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+  transition: transform .2s var(--ease);
+}
+.skip-link:focus-visible { transform: translate(-50%, 0); }
+
+/* Маячок для IntersectionObserver: по нему шапка понимает, что страницу
+   прокрутили. Вынесен из потока, поэтому на вёрстку не влияет.
+   Скролл-листенеров на странице нет вообще. */
+#top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 24px;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   3. ТИПОГРАФИКА И ПРИМИТИВЫ
+--------------------------------------------------------------------------- */
+
+.wrap {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+@media (min-width: 768px) { .wrap { padding-inline: 2rem; } }
+@media (min-width: 1280px) { .wrap { padding-inline: 2.5rem; } }
+
+.section { padding-block: clamp(4.5rem, 9vw, 8rem); }
+
+.section-head { margin-bottom: clamp(2.25rem, 4vw, 3.5rem); }
+.section-head .lead { margin-top: 1rem; }
+
+.h-display {
+  font-size: clamp(2.25rem, 6.4vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -.038em;
+}
+
+.h-section {
+  font-size: clamp(1.9rem, 4.4vw, 3.1rem);
+  line-height: 1.06;
+  letter-spacing: -.034em;
+}
+
+.h-card {
+  font-size: clamp(1.2rem, 1.9vw, 1.55rem);
+  line-height: 1.16;
+  letter-spacing: -.022em;
+}
+
+.lead {
+  font-size: clamp(1rem, 1.1vw, 1.125rem);
+  line-height: 1.62;
+  color: var(--ink-2);
+  max-width: 56ch;
+}
+
+/* Мелкая техническая подпись. На странице их всего две, не над каждой секцией. */
+.kicker {
+  font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: .6875rem;
+  line-height: 1;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 1.1rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.ico {
+  width: 1.125em;
+  height: 1.125em;
+  flex: none;
+  fill: currentColor;
+}
+
+/* ---------------------------------------------------------------------------
+   4. КНОПКИ И ССЫЛКИ
+--------------------------------------------------------------------------- */
+
+.btn {
+  --btn-py: .8rem;
+  --btn-px: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  padding: var(--btn-py) var(--btn-px);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: .9375rem;
+  line-height: 1;
+  white-space: nowrap;         /* лейбл кнопки всегда в одну строку */
+  text-align: center;
+  transition: transform .18s var(--ease), background-color .18s var(--ease),
+              border-color .18s var(--ease), color .18s var(--ease), box-shadow .18s var(--ease);
+}
+
+.btn-sm { --btn-py: .6rem; --btn-px: 1.05rem; font-size: .875rem; }
+.btn-lg { --btn-py: .95rem; --btn-px: 1.7rem; font-size: 1rem; }
+.btn-block { width: 100%; }
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink);     /* контраст 6.2:1, проходит AA */
+  box-shadow: var(--shadow-lift);
+}
+.btn-primary:hover { background: color-mix(in srgb, var(--accent) 88%, #fff); transform: translateY(-2px); }
+.btn-primary:active { transform: translateY(0) scale(.985); }
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-2);
+  color: var(--ink);
+}
+.btn-ghost:hover { border-color: var(--ink-3); background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.btn-ghost:active { transform: scale(.985); }
+
+.btn:disabled { opacity: .6; pointer-events: none; }
+
+/* Иконка загрузки появляется только в состоянии is-busy */
+.btn-ico-busy { display: none; }
+.btn.is-busy .btn-ico-idle { display: none; }
+.btn.is-busy .btn-ico-busy { display: block; animation: spin .9s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-top: 1.35rem;
+  font-weight: 600;
+  font-size: .9375rem;
+  color: var(--accent-text);
+}
+.link-arrow .ico { transition: transform .22s var(--ease); }
+.link-arrow:hover .ico { transform: translateX(4px); }
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-2);
+  transition: color .18s var(--ease), border-color .18s var(--ease), background-color .18s var(--ease);
+}
+.icon-btn:hover { color: var(--ink); border-color: var(--line-2); background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.icon-btn .ico { width: 1.15rem; height: 1.15rem; }
+
+/* Солнце показываем в тёмной теме, луну в светлой: иконка обещает результат клика */
+.ico-sun { display: none; }
+[data-theme="dark"] .ico-sun { display: block; }
+[data-theme="dark"] .ico-moon { display: none; }
+
+/* ---------------------------------------------------------------------------
+   5. ШАПКА
+--------------------------------------------------------------------------- */
+
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  transition: background-color .25s var(--ease), box-shadow .25s var(--ease), backdrop-filter .25s var(--ease);
+}
+
+/* Стекло появляется только после прокрутки, чтобы hero начинался чисто.
+   Это web-приближение frosted glass, не Apple Liquid Glass. */
+.site-header.is-stuck {
+  background: color-mix(in srgb, var(--canvas) 74%, transparent);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .site-header.is-stuck {
+    background: var(--canvas);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  margin-right: auto;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.brand-name { font-size: .9375rem; }
+@media (max-width: 400px) { .brand-name { display: none; } }
+
+.nav-desktop {
+  display: none;
+  gap: 1.75rem;
+  font-size: .9375rem;
+  color: var(--ink-2);
+}
+.nav-desktop a { position: relative; padding-block: .35rem; transition: color .18s var(--ease); }
+.nav-desktop a::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .25s var(--ease);
+}
+.nav-desktop a:hover { color: var(--ink); }
+.nav-desktop a:hover::after { transform: scaleX(1); }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.header-cta { display: none; }
+.nav-burger .ico-close { display: none; }
+.nav-burger.is-open .ico-open { display: none; }
+.nav-burger.is-open .ico-close { display: block; }
+
+@media (min-width: 1024px) {
+  .nav-desktop { display: flex; }
+  .header-cta { display: inline-flex; }
+  .nav-burger { display: none; }
+}
+
+/* Мобильное меню: панель на весь экран под шапкой */
+.mobile-nav {
+  position: fixed;
+  inset: var(--header-h) 0 0 0;
+  z-index: 45;
+  background: var(--canvas);
+  overflow-y: auto;
+  animation: nav-in .28s var(--ease);
+}
+
+@keyframes nav-in { from { opacity: 0; transform: translateY(-8px); } }
+
+.mobile-nav-inner {
+  display: flex;
+  flex-direction: column;
+  padding-block: 1rem 2.5rem;
+}
+.mobile-nav-inner a:not(.mobile-nav-cta) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1.15rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -.02em;
+  color: var(--ink);
+}
+.mobile-nav-inner a .ico { color: var(--ink-3); }
+.mobile-nav-cta { margin-top: 1.75rem; }
+
+@media (min-width: 1024px) { .mobile-nav { display: none; } }
+
+/* ---------------------------------------------------------------------------
+   6. HERO. Асимметричный сплит: копия слева, визуал справа.
+--------------------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  min-height: 100dvh;              /* dvh, а не vh: адресная строка на iOS не ломает высоту */
+  display: flex;
+  align-items: center;
+  padding-top: calc(var(--header-h) + 2rem);
+  padding-bottom: 3.5rem;
+  overflow: hidden;
+}
+
+/* Тёплое свечение за визуалом. Один слой, без «мешей» и неона по всей странице. */
+.hero::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: -18%;
+  right: -12%;
+  width: min(70vw, 780px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 26%, transparent), transparent 68%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+[data-theme="light"] .hero::before { opacity: .5; }
+
+.hero-grid {
+  position: relative;   /* держит контент над свечением, без отрицательных z-index */
+  z-index: 1;
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4rem);
+  align-items: center;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .hero { padding-top: calc(var(--header-h) + 3.5rem); }
+  .hero-grid { grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr); }
+}
+
+.hero-lead { margin-top: 1.35rem; max-width: 44ch; }
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 2.25rem;
+}
+.hero-actions .btn-primary .ico { transition: transform .22s var(--ease); }
+.hero-actions .btn-primary:hover .ico { transform: translateX(3px); }
+
+@media (max-width: 480px) {
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { width: 100%; }
+}
+
+.hero-visual { position: relative; }
+
+.shot-hero {
+  border-radius: var(--radius-card);
+  aspect-ratio: 8 / 7;
+}
+
+/* Рендер почти квадратный, 1268x1241. На узком экране слот растянут во всю
+   ширину, и при 4/3 кроп срезал бы верхнюю иконку и низ телефона. */
+@media (max-width: 899px) {
+  .shot-hero { aspect-ratio: 6 / 5; }
+}
+
+/* ---------------------------------------------------------------------------
+   7. СЛОТ ПОД ИЗОБРАЖЕНИЕ
+   Пока файла нет, слот рисует фирменную подложку и держит пропорции.
+   Класс .shot-empty вешает onerror у <img>, поэтому вёрстка не прыгает.
+--------------------------------------------------------------------------- */
+
+.shot {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.shot img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Пара картинок под тему.
+   Светлая лежит в основании и видна всегда, тёмная накрывает её и проявляется
+   по opacity. Обе версии, это одна и та же сцена при другом свете, поэтому
+   переключение темы читается как «включили свет», а не как подмена картинки.
+   Подложка между ними не просвечивает: нижний слой всегда непрозрачный.
+   Значимый alt висит на нижней картинке, верхняя помечена aria-hidden,
+   поэтому скринридер читает описание ровно один раз в любой теме. */
+.shot-img {
+  position: absolute;
+  inset: 0;
+}
+
+.shot-img-dark {
+  opacity: 0;
+  transition: opacity .3s var(--ease);
+}
+[data-theme="dark"] .shot-img-dark { opacity: 1; }
+
+.shot-empty img { display: none; }
+
+.shot-empty {
+  background:
+    radial-gradient(120% 90% at 72% 18%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 60%),
+    radial-gradient(90% 80% at 18% 88%, color-mix(in srgb, var(--ink) 12%, transparent), transparent 62%),
+    var(--surface-2);
+}
+
+/* тонкая техническая сетка */
+.shot-empty::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ink) 8%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ink) 8%, transparent) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(80% 80% at 50% 50%, #000, transparent);
+  -webkit-mask-image: radial-gradient(80% 80% at 50% 50%, #000, transparent);
+}
+
+/* диагональная штриховка: место подготовлено, но ещё не занято */
+.shot-empty::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--accent) 12%, transparent) 0 1px,
+    transparent 1px 14px
+  );
+  mask-image: radial-gradient(70% 70% at 50% 55%, #000, transparent);
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 55%, #000, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   8. ЛЕНТА СТЕКА. Единственная бегущая строка на странице.
+--------------------------------------------------------------------------- */
+
+.stack-band {
+  padding-block: clamp(1.75rem, 3vw, 2.5rem);
+  border-block: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marquee 46s linear infinite;
+  will-change: transform;
+}
+
+/* Отступ висит на каждом логотипе, а не на gap.
+   При gap последний зазор не повторяется, ширина половины не равна периоду
+   и сдвиг на 50% давал бы рывок на шве. С margin каждый логотип занимает
+   ровно (ширина + отступ), половина трека совпадает с периодом, шов не виден. */
+.marquee-track > .stack-logo { margin-right: clamp(2.5rem, 5vw, 4.5rem); }
+
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+@keyframes marquee {
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+/* Если скрипт не отработал, пустая полоса на странице не нужна. */
+.stack-band:has(.marquee-track:empty) { display: none; }
+
+/* Логотипы подключены как <img>, до них не достаёт currentColor.
+   Приводим к монохрому фильтром: работает и по http, и по file://. */
+.stack-logo {
+  height: 26px;
+  width: auto;
+  flex: none;
+  filter: brightness(0);
+  opacity: .45;
+  transition: opacity .22s var(--ease);
+}
+[data-theme="dark"] .stack-logo { filter: brightness(0) invert(1); opacity: .5; }
+.stack-logo:hover { opacity: 1; }
+
+@media (min-width: 768px) { .stack-logo { height: 30px; } }
+
+/* ---------------------------------------------------------------------------
+   9. УСЛУГИ. Асимметричная бенто-сетка: одна широкая ячейка и две узкие.
+      Ровно три ячейки под три услуги, пустых нет.
+--------------------------------------------------------------------------- */
+
+.services-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.svc {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  transition: border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.svc:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+.svc-body { padding: clamp(1.5rem, 3vw, 2.25rem); }
+.svc-summary { margin-top: .85rem; color: var(--ink-2); line-height: 1.6; max-width: 46ch; }
+
+.svc-media { overflow: hidden; }
+.svc-media .shot {
+  border: 0;
+  border-radius: 0;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+}
+.svc-media-tile .shot { aspect-ratio: 16 / 9; }
+
+.ticks {
+  display: grid;
+  gap: .6rem;
+  margin-top: 1.5rem;
+}
+.ticks li {
+  position: relative;
+  padding-left: 1.65rem;
+  font-size: .9375rem;
+  color: var(--ink-2);
+}
+.ticks li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: .32em;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  /* галочка рисуется маской из спрайта, а не отдельным инлайн-svg */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.ticks li::after {
+  content: '';
+  position: absolute;
+  left: .27rem;
+  top: .58em;
+  width: .46rem;
+  height: .25rem;
+  border-left: 1.6px solid var(--accent-text);
+  border-bottom: 1.6px solid var(--accent-text);
+  transform: rotate(-45deg);
+}
+
+@media (min-width: 900px) {
+  .services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .svc-wide {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    align-items: stretch;
+  }
+  /* Высоту широкой карточки задаёт текстовая колонка, картинка тянется под неё.
+     Абсолютное позиционирование надёжнее height:100% на пустом слоте. */
+  .svc-wide .svc-media { position: relative; }
+  .svc-wide .svc-media .shot {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+  }
+  .svc-wide .svc-body { display: flex; flex-direction: column; justify-content: center; }
+}
+
+/* ---------------------------------------------------------------------------
+   10. ПРОЦЕСС. Горизонтальный таймлайн на десктопе, вертикальный на телефоне.
+       Карточек нет намеренно: шаги держит линия и воздух.
+--------------------------------------------------------------------------- */
+
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 2.25rem;
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+}
+
+.tl-step { position: relative; padding-left: 2.5rem; }
+
+/* вертикальная линия между шагами на мобильном */
+.tl-step::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 1.5rem;
+  bottom: -2.25rem;
+  width: 1px;
+  background: var(--line);
+}
+.tl-step:last-child::before { display: none; }
+
+.tl-marker {
+  position: absolute;
+  left: 0;
+  top: .32rem;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  background: var(--canvas);
+}
+/* Заливка маркера по умолчанию видна: без скриптов шаги не должны выглядеть
+   недорисованными. Прячет её только .js, а IntersectionObserver возвращает. */
+.tl-marker::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform .3s var(--ease);
+}
+.js .tl-step:not(.is-in) .tl-marker::after { transform: scale(0); }
+
+.tl-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+.tl-content p { margin-top: .6rem; color: var(--ink-2); font-size: .9375rem; line-height: 1.6; max-width: 34ch; }
+
+.tl-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-top: .9rem !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: .75rem;
+  color: var(--ink-3) !important;
+  letter-spacing: .01em;
+}
+
+@media (min-width: 900px) {
+  .timeline {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+    padding-top: 2.75rem;
+  }
+  /* одна сплошная линия поверх всех шагов */
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line), var(--line-2), var(--line));
+  }
+  .tl-step { padding-left: 0; padding-right: 1.5rem; }
+  .tl-step::before { display: none; }
+  .tl-marker { top: -2.75rem; }
+}
+
+/* ---------------------------------------------------------------------------
+   11. КЕЙСЫ. Сетка на 5 колонок: широкая карточка 3, узкая 2.
+--------------------------------------------------------------------------- */
+
+.work-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.case-card {
+  display: block;
+  height: 100%;
+  padding: .75rem .75rem 1.35rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  transition: border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.case-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--line-2);
+}
+
+.case-shot {
+  aspect-ratio: 16 / 10;
+  border-radius: 10px;    /* внешний радиус минус внутренний отступ, углы концентричны */
+}
+
+.case-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.15rem;
+  padding-inline: .6rem;
+}
+.case-title { font-size: 1.05rem; font-weight: 600; letter-spacing: -.02em; }
+.case-kind {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.case-note {
+  margin-top: .5rem;
+  padding-inline: .6rem;
+  font-size: .875rem;
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+/* Слот под будущий проект: приглушён, чтобы не спорить с реальными кейсами */
+.case-slot .case-card { border-style: dashed; background: transparent; }
+.case-slot .case-title { color: var(--ink-2); font-weight: 500; }
+
+@media (min-width: 640px) and (max-width: 899px) {
+  .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 900px) {
+  .work-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.25rem; }
+  .case-wide { grid-column: span 3; }
+  .case-narrow { grid-column: span 2; }
+  /* Пропорции обложек совпадают с размерами из комментария в разметке */
+  .case-wide .case-shot { aspect-ratio: 16 / 10; }
+  .case-narrow .case-shot { aspect-ratio: 6 / 5; }
+}
+
+/* ---------------------------------------------------------------------------
+   12. ВОПРОСЫ. Аккордеон в узкой колонке.
+--------------------------------------------------------------------------- */
+
+.faq-wrap { max-width: 860px; }
+.faq .section-head { text-align: left; }
+
+.accordion { border-top: 1px solid var(--line); }
+
+.acc-item { border-bottom: 1px solid var(--line); }
+
+.acc-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  color: var(--ink);
+  transition: color .2s var(--ease);
+}
+.acc-trigger:hover { color: var(--accent-text); }
+
+.acc-chevron {
+  color: var(--ink-3);
+  transition: transform .3s var(--ease), color .2s var(--ease);
+}
+.acc-trigger[aria-expanded="true"] .acc-chevron { transform: rotate(180deg); color: var(--accent-text); }
+
+.acc-panel { overflow: hidden; }
+.acc-panel p {
+  padding-bottom: 1.5rem;
+  padding-right: 2rem;
+  color: var(--ink-2);
+  line-height: 1.65;
+  max-width: 62ch;
+}
+
+/* Раскрытие через grid-template-rows: анимируется без замера высоты в JS */
+.acc-panel:not([hidden]) { animation: acc-open .32s var(--ease); }
+@keyframes acc-open {
+  from { opacity: 0; transform: translateY(-6px); }
+}
+
+/* ---------------------------------------------------------------------------
+   13. КОНТАКТ И ФОРМА
+--------------------------------------------------------------------------- */
+
+.contact { position: relative; }
+
+.contact-grid {
+  display: grid;
+  gap: clamp(2.25rem, 4vw, 4rem);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .contact-grid { grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); }
+  .contact-copy { position: sticky; top: calc(var(--header-h) + 3rem); }
+}
+
+.contact-copy .lead { margin-top: 1.15rem; }
+
+.contact-fallback {
+  margin-top: 1.5rem;
+  padding: .9rem 1.1rem;
+  border-left: 2px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border-radius: 0 var(--radius-input) var(--radius-input) 0;
+  font-size: .875rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.contact-direct {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  margin-top: 1.75rem;
+  font-size: .9375rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: color .2s var(--ease);
+}
+.contact-direct:hover { color: var(--accent-text); }
+
+.lead-form {
+  display: grid;
+  gap: 1.25rem;
+  padding: clamp(1.35rem, 3vw, 2.25rem);
+  box-shadow: var(--shadow-panel);
+}
+
+.field { display: grid; gap: .5rem; }
+
+.field label,
+.field-label {
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--ink);       /* лейбл всегда над полем и всегда контрастный */
+}
+
+.field-opt {
+  font-weight: 400;
+  color: var(--ink-3);
+  font-size: .8125rem;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: .8rem .95rem;
+  background: var(--canvas);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-input);
+  color: var(--ink);
+  font-size: .9375rem;
+  line-height: 1.45;
+  transition: border-color .18s var(--ease), box-shadow .18s var(--ease), background-color .18s var(--ease);
+}
+
+.field textarea { resize: vertical; min-height: 116px; }
+
+.field input::placeholder,
+.field textarea::placeholder { color: var(--ink-3); }   /* контраст AA проверен в обеих темах */
+
+.field input:hover,
+.field textarea:hover,
+.field select:hover { border-color: var(--ink-3); }
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.field-row { display: grid; gap: 1.25rem; }
+@media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; } }
+
+.select-shell { position: relative; }
+.select-shell select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+.select-chevron {
+  position: absolute;
+  right: .95rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.field-hint { font-size: .8125rem; color: var(--ink-3); }
+
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .8125rem;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+.field.has-error input,
+.field.has-error textarea { border-color: var(--accent-text); }
+
+/* Чипы выбора задачи. Радио спрятано, но остаётся фокусируемым с клавиатуры. */
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.chip { position: relative; }
+.chip input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+}
+.chip span {
+  display: block;
+  padding: .55rem 1rem;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-pill);
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: all .18s var(--ease);
+}
+.chip:hover span { border-color: var(--ink-3); color: var(--ink); }
+.chip input:checked + span {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+.chip input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Результат отправки */
+.form-result {
+  padding: 1.1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  border-radius: var(--radius-input);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  animation: acc-open .3s var(--ease);
+}
+.form-result-head {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: .9375rem;
+  font-weight: 500;
+}
+.form-result-head .ico { color: var(--accent-text); }
+.form-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .9rem;
+}
+
+.form-error-top {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--accent-text);
+}
+
+/* ---------------------------------------------------------------------------
+   14. ПОДВАЛ
+--------------------------------------------------------------------------- */
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding-block: 2.5rem;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.75rem;
+}
+
+.footer-brand { display: flex; align-items: center; gap: .75rem; }
+.footer-name { font-weight: 600; letter-spacing: -.02em; }
+.footer-role { font-size: .8125rem; color: var(--ink-3); margin-top: .1rem; }
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.35rem;
+  font-size: .875rem;
+  color: var(--ink-2);
+}
+.footer-nav a { transition: color .18s var(--ease); }
+.footer-nav a:hover { color: var(--accent-text); }
+
+@media (max-width: 639px) {
+  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .footer-inner .btn { width: 100%; }
+}
+
+/* ---------------------------------------------------------------------------
+   15. ПОЯВЛЕНИЕ ПРИ СКРОЛЛЕ
+   Класс is-in ставит IntersectionObserver. Скролл-листенеров на странице нет.
+   Смысл анимации: содержимое проявляется в порядке чтения, это иерархия,
+   а не украшение. Без JS и под reduced-motion всё видно сразу.
+--------------------------------------------------------------------------- */
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s var(--ease), transform .6s var(--ease);
+  transition-delay: calc(var(--d, 0) * 70ms);
+}
+
+.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .marquee-track { animation: none; }
+  .mobile-nav { animation: none; }
+  .acc-panel:not([hidden]) { animation: none; }
+  .form-result { animation: none; }
+  .btn.is-busy .btn-ico-busy { animation: none; }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

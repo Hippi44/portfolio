@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/Leonxlnx/taste-skill/main/skills/taste-skill/SKILL.md\" -o \"_taste-skill.md\")",
+      "Bash(npm -v)",
+      "Bash(python -c \"import PIL; print\\('PIL', PIL.__version__\\)\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\);console.log\\(JSON.stringify\\(p,null,2\\)\\)\")",
+      "Bash(python -c \"import numpy; print\\('numpy', numpy.__version__\\)\")",
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Read(//c/Program Files \\\\\\(x86\\\\\\)/Microsoft/Edge/Application/**)",
+      "Read(//c/Windows/Fonts/**)",
+      "WebFetch(domain:core.telegram.org)",
+      "WebFetch(domain:api.fontsource.org)",
+      "WebFetch(domain:fonts.google.com)",
+      "WebFetch(domain:registry.npmjs.org)",
+      "PowerShell(npm view *)",
+      "WebSearch",
+      "Bash(python -c \"import PIL, numpy; print\\('PIL', PIL.__version__\\); print\\('numpy', numpy.__version__\\)\")",
+      "Bash(python scripts/fetch-assets.py)",
+      "Bash(python -c ' *)",
+      "Bash(node --check assets/js/main.js)",
+      "PowerShell(foreach \\($c in 'magick','convert','ffmpeg','cwebp','python','py','node','npx'\\) { $p = \\(Get-Command $c -ErrorAction SilentlyContinue\\); if \\($p\\) { \"{0,-8} -> {1}\" -f $c, $p.Source } else { \"{0,-8} -> \\(нет\\)\" -f $c } })",
+      "PowerShell(python -c \"import PIL; print\\('Pillow', PIL.__version__\\)\")",
+      "PowerShell(python \"C:\\\\Users\\\\Hippi\\\\Desktop\\\\portfolio 2\\\\assets\\\\img\\\\_to-webp.py\")",
+      "PowerShell(Get-ChildItem *)",
+      "Bash(awk '{printf \"%-28s %6.0f KB\\\\n\", $9, $5/1024}')"
+    ]
+  }
+}
