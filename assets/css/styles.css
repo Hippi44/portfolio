@@ -870,6 +870,7 @@ ul { list-style: none; padding: 0; }
   aspect-ratio: 16 / 10;
   border-radius: 10px;    /* внешний радиус минус внутренний отступ, углы концентричны */
 }
+.case-shot--contain img { object-fit: contain; }
 
 .case-meta {
   display: flex;
