@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Demo автоматизации продаж — Hippilokkery</title>
-<meta name="description" content="Интерактивная demo-сессия: заявка из Telegram проходит через workflow и возвращается с результатом.">
+<title>Демо автоматизации продаж — Hippilokkery</title>
+<meta name="description" content="Интерактивная демонстрация: заявка из Telegram проходит через сценарий автоматизации и возвращается с результатом.">
 <meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)">
 <meta name="automation-api-base" content="http://localhost:3000/api">
@@ -36,7 +36,7 @@
       <span class="brand-name">Hippilokkery</span>
     </a>
 
-    <nav class="nav-desktop" aria-label="Навигация demo">
+    <nav class="nav-desktop" aria-label="Навигация демо">
       <a href="../#services">Услуги</a>
       <a href="../#work">Кейсы</a>
       <a href="../#contact">Контакт</a>
@@ -72,45 +72,47 @@
   <section class="demo-hero">
     <div class="wrap">
       <a class="demo-back" href="../">← Вернуться в portfolio</a>
-      <p class="kicker">Живой demo-кейс</p>
+      <p class="kicker">Живой демо-кейс</p>
       <h1 class="h-display">От заявки<br>до результата</h1>
       <p class="lead demo-lead">
-        Запустите сессию, ответьте боту в Telegram и посмотрите, как заявка проходит через workflow с сохранением каждого шага.
+        Запустите сессию, ответьте боту в Telegram и вернитесь по кнопке обратно: сайт покажет обработку заявки по этапам и сохранит подробности каждого шага.
       </p>
 
       <div class="demo-actions" id="demo-actions" hidden>
         <a class="btn btn-primary btn-lg" id="telegram-open" href="#" target="_blank" rel="noopener">
-          Открыть Telegram
+          Открыть Telegram-бота
           <span aria-hidden="true">↗</span>
         </a>
         <button class="btn btn-ghost btn-lg" type="button" id="demo-example">Посмотреть пример</button>
       </div>
       <a class="demo-fallback" id="demo-fallback" href="?example=1">Посмотреть пример без запуска Telegram →</a>
-      <p class="demo-status" id="demo-status" role="status" aria-live="polite">Подключаем demo-сессию…</p>
+      <p class="demo-status" id="demo-status" role="status" aria-live="polite">Подключаем демо-сессию…</p>
     </div>
   </section>
 
   <section class="demo-dashboard section">
     <div class="wrap">
-      <div class="demo-flow-preview" aria-label="Workflow demo preview">
+      <div class="demo-flow-preview" aria-label="Предпросмотр сценария автоматизации">
         <div class="demo-flow-head">
-          <span class="kicker">LIVE WORKFLOW</span>
-          <span class="demo-flow-state"><i aria-hidden="true"></i> 4 STEPS</span>
+          <span class="kicker">ЖИВОЙ СЦЕНАРИЙ</span>
+          <span class="demo-flow-state" id="demo-flow-state"><i aria-hidden="true"></i> 5 ЭТАПОВ</span>
         </div>
         <div class="demo-flow-track" aria-hidden="true">
-          <span class="demo-flow-node is-active"><b>01</b><strong>Lead</strong><small>Telegram</small></span>
+          <span class="demo-flow-node is-active" data-flow-node="lead-created"><b>01</b><strong>Заявка</strong><small>получена</small></span>
           <span class="demo-flow-line"></span>
-          <span class="demo-flow-node"><b>02</b><strong>Filter</strong><small>budget</small></span>
+          <span class="demo-flow-node" data-flow-node="check-budget"><b>02</b><strong>Проверка</strong><small>бюджета</small></span>
           <span class="demo-flow-line"></span>
-          <span class="demo-flow-node"><b>03</b><strong>Notify</strong><small>message</small></span>
+          <span class="demo-flow-node" data-flow-node="create-client"><b>03</b><strong>Клиент</strong><small>карточка</small></span>
           <span class="demo-flow-line"></span>
-          <span class="demo-flow-node"><b>04</b><strong>Result</strong><small>saved</small></span>
+          <span class="demo-flow-node" data-flow-node="send-telegram"><b>04</b><strong>Уведомление</strong><small>Telegram</small></span>
+          <span class="demo-flow-line"></span>
+          <span class="demo-flow-node" data-flow-node="update-lead"><b>05</b><strong>Результат</strong><small>сохранён</small></span>
         </div>
       </div>
 
       <div class="demo-error" id="demo-error" hidden role="alert">
-        <strong>Demo временно недоступна</strong>
-        <span id="demo-error-text">Backend не ответил.</span>
+        <strong>Демо временно недоступна</strong>
+        <span id="demo-error-text">Сервер не ответил.</span>
         <button class="btn btn-ghost btn-sm" type="button" id="demo-retry">Повторить</button>
       </div>
 
@@ -129,10 +131,17 @@
         <article class="panel demo-panel reveal" style="--d:1">
           <div class="demo-panel-head">
             <div>
-              <p class="kicker">02 · workflow</p>
-              <h2 class="demo-panel-title">Маршрут обработки</h2>
+              <p class="kicker">02 · сценарий обработки</p>
+              <h2 class="demo-panel-title">Что произошло на каждом этапе</h2>
             </div>
-            <span class="demo-badge demo-badge-neutral">lead.created</span>
+            <span class="demo-badge" id="workflow-status">Ожидание</span>
+          </div>
+          <div class="workflow-toolbar" id="workflow-toolbar" hidden>
+            <p>Нажмите на этап, чтобы открыть входные данные, результат и время выполнения.</p>
+            <div class="workflow-toolbar-actions">
+              <button class="workflow-toggle" type="button" id="workflow-expand">Развернуть все</button>
+              <button class="workflow-toggle" type="button" id="workflow-collapse">Свернуть все</button>
+            </div>
           </div>
           <ol class="workflow-list" id="workflow-view"></ol>
         </article>
@@ -140,8 +149,8 @@
         <article class="panel demo-panel demo-panel-wide reveal" style="--d:2">
           <div class="demo-panel-head">
             <div>
-              <p class="kicker">03 · execution log</p>
-              <h2 class="demo-panel-title">Прогресс выполнения</h2>
+              <p class="kicker">03 · журнал выполнения</p>
+              <h2 class="demo-panel-title">Ход обработки заявки</h2>
             </div>
             <span class="demo-badge" id="execution-status">Ожидание</span>
           </div>
@@ -152,13 +161,47 @@
       <article class="demo-result panel reveal" id="demo-result-panel" style="--d:3">
         <div class="demo-panel-head">
           <div>
-            <p class="kicker">04 · outcome</p>
+            <p class="kicker">04 · результат</p>
             <h2 class="demo-panel-title">Результат</h2>
           </div>
           <span class="demo-badge" id="result-status">Ожидание</span>
         </div>
         <div id="demo-result-view" class="demo-result-view"></div>
       </article>
+
+      <section class="demo-benefits reveal" aria-labelledby="demo-benefits-title" style="--d:4">
+        <div class="demo-benefits-head">
+          <div>
+            <p class="kicker">Что получает бизнес</p>
+            <h2 class="h-section" id="demo-benefits-title">Меньше рутины. Больше контроля.</h2>
+          </div>
+          <p>
+            Такая автоматизация не просто передаёт данные между сервисами — она ускоряет реакцию команды и делает каждый шаг проверяемым.
+          </p>
+        </div>
+        <div class="demo-benefits-grid">
+          <article class="demo-benefit-card">
+            <span>01</span>
+            <h3>Экономия времени</h3>
+            <p>Менеджеру не нужно вручную переносить заявку, создавать карточку клиента и дублировать уведомления.</p>
+          </article>
+          <article class="demo-benefit-card">
+            <span>02</span>
+            <h3>Заявки не теряются</h3>
+            <p>Каждое обращение получает статус, сохраняется в системе и остаётся доступным для проверки.</p>
+          </article>
+          <article class="demo-benefit-card">
+            <span>03</span>
+            <h3>Быстрее первый ответ</h3>
+            <p>Команда получает уведомление сразу после проверки, пока интерес клиента ещё высокий.</p>
+          </article>
+          <article class="demo-benefit-card">
+            <span>04</span>
+            <h3>Прозрачный процесс</h3>
+            <p>По журналу видно, какой этап выполнен, что было проверено и где потребуется внимание.</p>
+          </article>
+        </div>
+      </section>
     </div>
   </section>
 </main>
@@ -177,6 +220,6 @@
 </footer>
 
 <script src="../assets/js/main.js" defer></script>
-<script src="demo.js" defer></script>
+<script src="demo.js?v=20260814-2" defer></script>
 </body>
 </html>
