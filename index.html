@@ -321,15 +321,14 @@
     </div>
   </section>
 
-  <!-- ================================ КЕЙСЫ =============================== -->
+<!-- ================================ КЕЙСЫ =============================== -->
   <!--
     КАК ДОБАВИТЬ РЕАЛЬНЫЙ КЕЙС
-    1. Положите обложку в assets/img/ (1200x760 для широкой карточки, 900x760 для узкой).
-    2. У <article> уберите класс `case-slot`.
-    3. Замените заголовок, тип, год, описание и строку результата.
+    1. Положите обложку в assets/img/ (1536x1024 для крупной карточки, пропорция 6/5 для узких).
+    2. Разметьте карточку: крупная — class="case case-feature", узкая — class="case case-narrow".
+    3. Замените заголовок, тип, год, описание и ссылку.
     4. Если есть ссылка на проект, поменяйте <div class="case-card"> на
        <a class="case-card" href="https://..." target="_blank" rel="noopener">.
-    Чтобы временно спрятать всю секцию, добавьте hidden к <section id="work">.
   -->
   <section class="section work" id="work">
     <div class="wrap">
@@ -341,7 +340,7 @@
 
       <div class="work-grid">
 
-        <article class="case case-wide reveal">
+        <article class="case case-feature reveal">
           <a class="case-card" href="https://hippi44.github.io/lendingPage/" target="_blank" rel="noopener">
             <figure class="shot case-shot" data-slot="case-1">
               <img src="assets/img/nokturn.webp" alt="Лендинг NOKTURN: детейлинг-студия и автосервис, полировка, керамика 9H и кузовной ремонт"
@@ -387,19 +386,6 @@
               Открыть кейс
               <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg>
             </span>
-          </div>
-        </article>
-
-        <article class="case case-wide case-slot reveal" style="--d:3">
-          <div class="case-card">
-            <figure class="shot case-shot" data-slot="case-4">
-              <img src="assets/img/work-slot-4.webp" alt="" width="1200" height="760" loading="lazy" decoding="async" onerror="this.closest('.shot').classList.add('shot-empty')">
-            </figure>
-            <div class="case-meta">
-              <h3 class="case-title">Место под кейс</h3>
-              <p class="case-kind">Лендинг и бот</p>
-            </div>
-            <p class="case-note">Здесь появится задача клиента, что сделал и чем всё закончилось.</p>
           </div>
         </article>
 
@@ -565,15 +551,6 @@
           <label for="f-link">Ссылка на сайт или ТЗ <span class="field-opt">необязательно</span></label>
           <input type="url" id="f-link" name="link" inputmode="url" placeholder="https://">
           <p class="field-error" id="f-link-error" hidden></p>
-        </div>
-
-        <div class="field">
-          <label for="f-message">Задача в двух предложениях</label>
-          <textarea id="f-message" name="message" rows="4" required
-                    aria-describedby="f-message-hint"
-                    placeholder="Что за продукт, кто покупает, что должно происходить после заявки"></textarea>
-          <p class="field-hint" id="f-message-hint">Чем конкретнее, тем точнее оценка.</p>
-          <p class="field-error" id="f-message-error" hidden></p>
         </div>
 
         <button class="btn btn-primary btn-lg btn-block" type="submit" id="submit-btn">

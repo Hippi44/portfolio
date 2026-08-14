@@ -846,7 +846,7 @@ ul { list-style: none; padding: 0; }
 }
 
 /* ---------------------------------------------------------------------------
-   11. КЕЙСЫ. Сетка на 5 колонок: широкая карточка 3, узкая 2.
+   11. КЕЙСЫ. Крупная карточка на всю ширину, две узкие рядом.
 --------------------------------------------------------------------------- */
 
 .work-grid {
@@ -903,10 +903,6 @@ ul { list-style: none; padding: 0; }
   line-height: 1.55;
   color: var(--ink-3);
 }
-
-/* Слот под будущий проект: приглушён, чтобы не спорить с реальными кейсами */
-.case-slot .case-card { border-style: dashed; background: transparent; }
-.case-slot .case-title { color: var(--ink-2); font-weight: 500; }
 
 .case-card-trigger {
   width: 100%;
@@ -1045,14 +1041,14 @@ ul { list-style: none; padding: 0; }
 
 @media (min-width: 640px) and (max-width: 899px) {
   .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .case-feature { grid-column: 1 / -1; }
 }
 
 @media (min-width: 900px) {
-  .work-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.25rem; }
-  .case-wide { grid-column: span 3; }
-  .case-narrow { grid-column: span 2; }
+  .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .case-feature { grid-column: 1 / -1; }
   /* Пропорции обложек совпадают с размерами из комментария в разметке */
-  .case-wide .case-shot { aspect-ratio: 16 / 10; }
+  .case-feature .case-shot { aspect-ratio: 16 / 10; }
   .case-narrow .case-shot { aspect-ratio: 6 / 5; }
 }
 

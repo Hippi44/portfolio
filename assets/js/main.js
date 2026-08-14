@@ -286,7 +286,6 @@
   var FIELDS = {
     name: { el: $('f-name'), error: $('f-name-error') },
     link: { el: $('f-link'), error: $('f-link-error') },
-    message: { el: $('f-message'), error: $('f-message-error') },
   };
 
   /* --- валидация ----------------------------------------------------------- */
@@ -344,7 +343,6 @@
       term: form.elements.term.value,
       rawLink: FIELDS.link.el.value.trim(),
       link: normalizeUrl(FIELDS.link.el.value) || '',
-      message: FIELDS.message.el.value.trim(),
     };
   }
 
@@ -354,7 +352,6 @@
     var problems = [];
     if (data.name.length < 2) problems.push(['name', 'Напишите, как к вам обращаться']);
     if (data.rawLink && !data.link) problems.push(['link', 'Проверьте адрес, похоже на опечатку']);
-    if (data.message.length < 10) problems.push(['message', 'Опишите задачу хотя бы парой предложений']);
 
     problems.forEach(function (pair) { showError(pair[0], pair[1]); });
 
@@ -382,7 +379,6 @@
       'Сроки: ' + data.term,
     ];
     if (data.link) lines.push('Ссылка: ' + data.link);
-    lines.push('', data.message);
     return lines.join('\n');
   }
 
