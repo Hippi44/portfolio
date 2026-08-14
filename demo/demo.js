@@ -20,11 +20,14 @@
 
   var nodes = {
     actions: document.getElementById('demo-actions'),
+    start: document.getElementById('demo-start'),
     telegramOpen: document.getElementById('telegram-open'),
     example: document.getElementById('demo-example'),
-    fallback: document.getElementById('demo-fallback'),
     retry: document.getElementById('demo-retry'),
     status: document.getElementById('demo-status'),
+    stepGuide: document.getElementById('demo-step-guide'),
+    stepLabel: document.getElementById('demo-step-label'),
+    steps: document.getElementById('demo-steps'),
     error: document.getElementById('demo-error'),
     errorText: document.getElementById('demo-error-text'),
     leadStatus: document.getElementById('lead-status'),
@@ -40,14 +43,38 @@
     executionView: document.getElementById('execution-view'),
     resultStatus: document.getElementById('result-status'),
     resultView: document.getElementById('demo-result-view'),
+    branch: document.getElementById('demo-branch'),
+    branchQuestion: document.getElementById('branch-question'),
+    branchRule: document.getElementById('branch-rule'),
+    branchYes: document.getElementById('branch-yes'),
+    branchNo: document.getElementById('branch-no'),
+    branchYesNote: document.getElementById('branch-yes-note'),
+    branchNoNote: document.getElementById('branch-no-note'),
+    branchReason: document.getElementById('branch-reason'),
   };
 
   var NODE_LABELS = {
-    'lead-created': 'Новая заявка',
+    'lead-created': 'Заявка получена',
     'check-budget': 'Проверка бюджета',
     'create-client': 'Создание клиента',
     'send-telegram': 'Уведомление в Telegram',
     'update-lead': 'Обновление заявки',
+  };
+
+  var NODE_KINDS = {
+    'lead-created': 'Приём заявки',
+    'check-budget': 'Проверка условий',
+    'create-client': 'CRM',
+    'send-telegram': 'Telegram',
+    'update-lead': 'CRM',
+  };
+
+  var NODE_ACTIONS = {
+    'lead-created': 'lead.created',
+    'check-budget': 'check budget',
+    'create-client': 'client.create',
+    'send-telegram': 'telegram.send',
+    'update-lead': 'lead.update',
   };
 
   var NODE_DESCRIPTIONS = {
@@ -85,6 +112,25 @@
     FORM: 'Форма на сайте',
   };
 
+  var SAMPLE_LEAD = {
+    id: 'example-lead',
+    name: 'Марина',
+    serviceType: 'Автоматизация',
+    budgetLabel: 'Более 100 000 ₽',
+    budgetAmount: 150000,
+    description: 'Собирать заявки с сайта и уведомлять менеджера в Telegram.',
+    source: 'TELEGRAM',
+    status: 'COMPLETED',
+    createdAt: new Date().toISOString(),
+    client: { id: 'example-client', name: 'Марина', createdAt: new Date().toISOString() },
+  };
+
+  var SAMPLE_EVENT = {
+    event: 'lead.created',
+    leadId: 'example-lead',
+    demoSessionId: 'example-session',
+  };
+
   var SAMPLE_RESULT = {
     session: {
       id: 'example-session',
@@ -93,18 +139,7 @@
       createdAt: new Date().toISOString(),
       telegramUrl: '',
     },
-    lead: {
-      id: 'example-lead',
-      name: 'Марина',
-      serviceType: 'Автоматизация',
-      budgetLabel: 'Более 100 000 ₽',
-      budgetAmount: 150000,
-      description: 'Собирать заявки с сайта и уведомлять менеджера в Telegram.',
-      source: 'TELEGRAM',
-      status: 'COMPLETED',
-      createdAt: new Date().toISOString(),
-      client: { id: 'example-client', name: 'Марина', createdAt: new Date().toISOString() },
-    },
+    lead: SAMPLE_LEAD,
     executions: [{
       id: 'example-execution',
       status: 'SUCCESS',
@@ -113,11 +148,11 @@
       startedAt: new Date(Date.now() - 5200).toISOString(),
       finishedAt: new Date(Date.now() - 400).toISOString(),
       steps: [
-        { id: 's1', nodeId: 'lead-created', position: 0, status: 'SUCCESS', input: { source: 'Telegram' }, output: { received: true }, error: null, startedAt: new Date(Date.now() - 5200).toISOString(), finishedAt: new Date(Date.now() - 4700).toISOString() },
-        { id: 's2', nodeId: 'check-budget', position: 1, status: 'SUCCESS', input: { budgetAmount: 150000 }, output: { passed: true, expected: 50000, actual: 150000 }, error: null, startedAt: new Date(Date.now() - 4400).toISOString(), finishedAt: new Date(Date.now() - 3700).toISOString() },
-        { id: 's3', nodeId: 'create-client', position: 2, status: 'SUCCESS', input: { name: 'Марина' }, output: { clientId: 'example-client', created: true }, error: null, startedAt: new Date(Date.now() - 3400).toISOString(), finishedAt: new Date(Date.now() - 2600).toISOString() },
-        { id: 's4', nodeId: 'send-telegram', position: 3, status: 'SUCCESS', input: { channel: 'Telegram' }, output: { delivered: true }, error: null, startedAt: new Date(Date.now() - 2300).toISOString(), finishedAt: new Date(Date.now() - 1600).toISOString() },
-        { id: 's5', nodeId: 'update-lead', position: 4, status: 'SUCCESS', input: { status: 'PROCESSING' }, output: { status: 'COMPLETED' }, error: null, startedAt: new Date(Date.now() - 1300).toISOString(), finishedAt: new Date(Date.now() - 400).toISOString() },
+        { id: 's1', nodeId: 'lead-created', position: 0, status: 'SUCCESS', input: { nodeId: 'lead-created', event: SAMPLE_EVENT, lead: SAMPLE_LEAD }, output: { received: true, event: SAMPLE_EVENT }, error: null, startedAt: new Date(Date.now() - 5200).toISOString(), finishedAt: new Date(Date.now() - 4700).toISOString() },
+        { id: 's2', nodeId: 'check-budget', position: 1, status: 'SUCCESS', input: { nodeId: 'check-budget', event: SAMPLE_EVENT, lead: SAMPLE_LEAD }, output: { passed: true, field: 'budgetAmount', operator: 'greater than', expected: 50000, actual: 150000 }, error: null, startedAt: new Date(Date.now() - 4400).toISOString(), finishedAt: new Date(Date.now() - 3700).toISOString() },
+        { id: 's3', nodeId: 'create-client', position: 2, status: 'SUCCESS', input: { nodeId: 'create-client', event: SAMPLE_EVENT, lead: SAMPLE_LEAD }, output: { clientId: 'example-client', created: true }, error: null, startedAt: new Date(Date.now() - 3400).toISOString(), finishedAt: new Date(Date.now() - 2600).toISOString() },
+        { id: 's4', nodeId: 'send-telegram', position: 3, status: 'SUCCESS', input: { nodeId: 'send-telegram', event: SAMPLE_EVENT, lead: SAMPLE_LEAD }, output: { delivered: true, messageId: 4821 }, error: null, startedAt: new Date(Date.now() - 2300).toISOString(), finishedAt: new Date(Date.now() - 1600).toISOString() },
+        { id: 's5', nodeId: 'update-lead', position: 4, status: 'SUCCESS', input: { nodeId: 'update-lead', event: SAMPLE_EVENT, lead: SAMPLE_LEAD }, output: { leadId: 'example-lead', status: 'COMPLETED' }, error: null, startedAt: new Date(Date.now() - 1300).toISOString(), finishedAt: new Date(Date.now() - 400).toISOString() },
       ],
     }],
   };
@@ -158,12 +193,27 @@
     return (milliseconds / 1000).toFixed(milliseconds < 10000 ? 1 : 0).replace('.', ',') + ' с';
   }
 
+  function money(value) {
+    if (value === null || value === undefined || value === '') return '—';
+    var number = Number(value);
+    if (!Number.isFinite(number)) return String(value);
+    return number.toLocaleString('ru-RU') + ' ₽';
+  }
+
   function isTerminalStatus(status) {
     return ['SUCCESS', 'FAILED', 'SKIPPED'].indexOf(status) !== -1;
   }
 
   function primaryExecution(result) {
     return result && result.executions && result.executions.length ? result.executions[0] : null;
+  }
+
+  function findStep(execution, nodeId) {
+    if (!execution || !execution.steps) return null;
+    for (var i = 0; i < execution.steps.length; i++) {
+      if (execution.steps[i].nodeId === nodeId) return execution.steps[i];
+    }
+    return null;
   }
 
   function displayStepStatus(step, index) {
@@ -192,21 +242,63 @@
     var output = step.output && typeof step.output === 'object' ? step.output : {};
     if (step.nodeId === 'lead-created') return 'Заявка получена из Telegram и зарегистрирована в системе.';
     if (step.nodeId === 'check-budget') {
-      if (output.passed) return 'Бюджет подходит — карточка клиента создаётся автоматически.';
-      return 'Бюджет ниже порога сценария — заявка передаётся менеджеру напрямую.';
+      if (output.passed) return 'Условие выполнено — сценарий пойдёт по ветке «Да».';
+      return 'Условие не выполнено — сценарий пойдёт по ветке «Нет».';
     }
     if (step.nodeId === 'create-client') {
       return output.created === false
         ? 'Карточка клиента уже была в базе — повторное создание не требуется.'
-        : 'Карточка клиента создана автоматически из данных заявки.';
+        : 'Карточка клиента создана автоматически.';
     }
     if (step.nodeId === 'send-telegram') {
-      return output.delivered === false
-        ? 'Уведомление не доставлено, но заявка продолжила обработку и сохранилась.'
-        : 'Уведомление отправлено ответственному в Telegram.';
+      if (output.delivered === false) {
+        return 'Уведомление не отправлено: ' + (output.error || output.reason || 'неизвестная причина');
+      }
+      return 'Уведомление отправлено ответственному в Telegram.';
     }
     if (step.nodeId === 'update-lead') return 'Заявке присвоен финальный статус «Готово».';
     return NODE_DESCRIPTIONS[step.nodeId] || 'Этап выполнен и записан в журнал.';
+  }
+
+  function formatValue(value) {
+    if (value === null || value === undefined) return '—';
+    if (typeof value === 'boolean') return value ? 'да' : 'нет';
+    if (typeof value === 'number') return value.toLocaleString('ru-RU');
+    if (typeof value === 'object') return JSON.stringify(value);
+    return String(value);
+  }
+
+  function inputFacts(step, fallbackLead) {
+    var raw = step.input && typeof step.input === 'object' ? step.input : {};
+    var lead = raw.lead && typeof raw.lead === 'object' ? raw.lead : fallbackLead;
+    var facts = [];
+    if (lead && typeof lead === 'object' && lead.id) {
+      if (lead.name) facts.push(['Имя', lead.name]);
+      if (lead.serviceType) facts.push(['Услуга', lead.serviceType]);
+      if (lead.budgetLabel) facts.push(['Бюджет', lead.budgetLabel]);
+      if (lead.description) facts.push(['Задача', lead.description]);
+    }
+    if (raw.event) {
+      facts.push(['Событие', typeof raw.event === 'object' ? (raw.event.event || JSON.stringify(raw.event)) : String(raw.event)]);
+    }
+    return facts;
+  }
+
+  function outputRows(step) {
+    var output = step.output && typeof step.output === 'object' ? step.output : {};
+    var rows = [];
+    Object.keys(output).forEach(function (key) {
+      if (key === 'event' || key === 'received') return;
+      rows.push([key, output[key]]);
+    });
+    return rows;
+  }
+
+  function priorityLabel(lead) {
+    if (!lead) return 'Стандартный';
+    if (lead.budgetAmount >= 100000) return 'Высокий';
+    if (lead.budgetAmount >= 50000) return 'Средний';
+    return 'Стандартный';
   }
 
   function setFlowState(text) {
@@ -253,8 +345,10 @@
     }
 
     if (!steps.length) {
-      if (nodes.flowNodes[0]) nodes.flowNodes[0].classList.add('is-active');
-      setFlowState('5 ЭТАПОВ');
+      nodes.flowNodes.forEach(function (node) {
+        node.classList.remove('is-active', 'is-complete', 'is-failed', 'is-skipped');
+      });
+      setFlowState('5 ЭТАПОВ · ОЖИДАНИЕ');
       return;
     }
 
@@ -265,6 +359,51 @@
     } else {
       setFlowState('ОБРАБОТКА ЗАЯВКИ');
     }
+  }
+
+  function renderBranch(result) {
+    var execution = primaryExecution(result);
+    var condition = findStep(execution, 'check-budget');
+    var clientStep = findStep(execution, 'create-client');
+    if (!condition) {
+      nodes.branch.hidden = true;
+      return;
+    }
+    var output = condition.output && typeof condition.output === 'object' ? condition.output : {};
+    if (!('passed' in output)) {
+      nodes.branch.hidden = true;
+      return;
+    }
+    var index = Array.prototype.indexOf.call(execution.steps, condition);
+    if (state.playbackActive && displayStepStatus(condition, index) !== 'SUCCESS') {
+      nodes.branch.hidden = true;
+      return;
+    }
+
+    var passed = output.passed === true;
+    var operator = output.operator === 'less than' ? '<' : '>';
+    var expected = output.expected;
+    var actual = output.actual;
+    var expectedText = Number.isFinite(Number(expected)) ? money(Number(expected)) : String(expected !== null && expected !== undefined ? expected : '—');
+    var actualText = Number.isFinite(Number(actual)) ? money(Number(actual)) : String(actual !== null && actual !== undefined ? actual : '—');
+
+    nodes.branch.hidden = false;
+    nodes.branchQuestion.textContent = 'Бюджет ' + operator + ' ' + expectedText + '?';
+    nodes.branchRule.textContent = (output.field || 'budgetAmount') + ' ' + operator + ' ' + (expected !== null && expected !== undefined ? String(expected) : '—');
+
+    var created = Boolean(clientStep && clientStep.output && clientStep.output.created === true);
+    nodes.branchYes.classList.toggle('is-taken', passed);
+    nodes.branchNo.classList.toggle('is-taken', !passed);
+    nodes.branchYesNote.textContent = passed
+      ? 'client.create · ' + (created ? 'выполнен' : 'status: ' + (clientStep ? clientStep.status : 'pending').toLowerCase())
+      : 'client.create · не запускался';
+    nodes.branchNoNote.textContent = passed
+      ? 'client.create · не запускался'
+      : 'client.create · ' + (clientStep && clientStep.status === 'SKIPPED' ? 'пропущен' : 'не запускался');
+
+    nodes.branchReason.textContent = passed
+      ? 'Получено: ' + actualText + ' — условие выполнено, выбрана ветка «Да», карточка клиента создана.'
+      : 'Получено: ' + actualText + ' — условие не выполнено, выбрана ветка «Нет», создание клиента пропущено.';
   }
 
   function request(path, options) {
@@ -305,13 +444,41 @@
     nodes.status.className = 'demo-status' + (stateName ? ' is-' + stateName : (nodes.error && !nodes.error.hidden ? ' is-error' : ''));
   }
 
+  function setStep(step) {
+    if (state.example) {
+      nodes.stepGuide.hidden = true;
+      return;
+    }
+    nodes.stepGuide.hidden = false;
+    nodes.stepLabel.textContent = 'Шаг ' + step + ' из 3';
+    var items = Array.prototype.slice.call(nodes.steps.querySelectorAll('li'));
+    items.forEach(function (li, index) {
+      var number = index + 1;
+      li.classList.toggle('is-current', number === step);
+      li.classList.toggle('is-done', number < step);
+    });
+  }
+
+  function setStepFinished() {
+    if (state.example) return;
+    var items = Array.prototype.slice.call(nodes.steps.querySelectorAll('li'));
+    items.forEach(function (li) {
+      li.classList.remove('is-current');
+      li.classList.add('is-done');
+    });
+    nodes.stepLabel.textContent = 'Готово';
+  }
+
   function renderSession() {
-    if (!state.session || state.example || !state.session.telegramUrl) {
+    if (state.example) {
       nodes.actions.hidden = true;
       return;
     }
     nodes.actions.hidden = false;
-    nodes.telegramOpen.href = state.session.telegramUrl;
+    var hasSession = Boolean(state.session && state.session.telegramUrl);
+    nodes.start.hidden = hasSession;
+    nodes.telegramOpen.hidden = !hasSession;
+    if (hasSession) nodes.telegramOpen.href = state.session.telegramUrl;
   }
 
   function renderLead(result) {
@@ -342,6 +509,60 @@
     nodes.leadView.appendChild(create('p', 'lead-description', lead.description));
   }
 
+  function kvBlock(className, rows) {
+    var block = create('div', 'exec-block ' + className);
+    var label = create('p', 'exec-block-label', rows[0]);
+    var list = create('dl', 'exec-kv');
+    for (var i = 1; i < rows.length; i++) {
+      var row = create('div');
+      row.appendChild(create('dt', '', rows[i][0]));
+      row.appendChild(create('dd', rows[i][2] || '', rows[i][1]));
+      list.appendChild(row);
+    }
+    block.appendChild(label);
+    block.appendChild(list);
+    return block;
+  }
+
+  function conditionBlock(step) {
+    var output = step.output && typeof step.output === 'object' ? step.output : {};
+    var operator = output.operator === 'less than' ? '<' : '>';
+    var condition = (output.field || 'budgetAmount') + ' ' + operator + ' ' +
+      (output.expected !== null && output.expected !== undefined ? String(output.expected) : '—');
+    var actualText = Number.isFinite(Number(output.actual)) ? money(Number(output.actual)) : String(output.actual !== null && output.actual !== undefined ? output.actual : '—');
+    var passed = output.passed === true;
+    return kvBlock('exec-condition', [
+      'Проверка условия',
+      ['Условие', condition],
+      ['Получено', actualText],
+      ['Результат', passed ? '✓ Условие выполнено' : '✕ Условие не выполнено', passed ? 'is-ok' : 'is-no'],
+    ]);
+  }
+
+  function telegramBlock(step, lead) {
+    var output = step.output && typeof step.output === 'object' ? step.output : {};
+    var block = create('div', 'exec-block exec-telegram');
+    block.appendChild(create('p', 'exec-block-label', 'Превью уведомления'));
+
+    var bubble = create('div', 'tg-preview');
+    bubble.appendChild(create('p', 'tg-preview-title', '🔔 Новая заявка'));
+    var lines = [];
+    if (lead && lead.name) lines.push(lead.name);
+    if (lead && lead.serviceType) lines.push(lead.serviceType);
+    if (lead && lead.budgetLabel) lines.push('Бюджет: ' + lead.budgetLabel);
+    lines.push('Приоритет: ' + priorityLabel(lead));
+    lines.forEach(function (line) { bubble.appendChild(create('p', '', line)); });
+    bubble.appendChild(create('p', 'tg-preview-action', '[ Открыть заявку ]'));
+    block.appendChild(bubble);
+
+    var delivered = output.delivered === true;
+    var note = delivered
+      ? 'Уведомление отправлено успешно — менеджер увидел заявку в Telegram.'
+      : 'Уведомление не отправлено: ' + (output.error || output.reason || 'неизвестная причина');
+    block.appendChild(create('p', 'telegram-send-note' + (delivered ? ' is-sent' : ' is-failed'), note));
+    return block;
+  }
+
   function renderWorkflow(result) {
     var openIds = Array.prototype.slice.call(nodes.workflowView.querySelectorAll('details[open]'))
       .map(function (details) { return details.dataset.stepId; });
@@ -366,11 +587,7 @@
       var summary = create('summary', 'workflow-step-summary');
       summary.appendChild(create('span', 'workflow-step-marker', String(index + 1).padStart(2, '0')));
       var summaryCopy = create('span', 'workflow-step-copy');
-      var label = NODE_LABELS[step.nodeId] || step.nodeId;
-      if (!state.playbackActive && step.nodeId === 'check-budget' && step.output && typeof step.output === 'object') {
-        label += step.output.passed ? ' · бюджет подходит' : ' · бюджет ниже порога';
-      }
-      summaryCopy.appendChild(create('strong', 'workflow-step-name', label));
+      summaryCopy.appendChild(create('strong', 'workflow-step-name', NODE_LABELS[step.nodeId] || step.nodeId));
       summaryCopy.appendChild(create('small', 'workflow-step-summary-text',
         displayStatus === 'RUNNING' ? (NODE_PROGRESS_LABELS[step.nodeId] || 'Выполняем этап…') : (NODE_DESCRIPTIONS[step.nodeId] || 'Этап сценария')));
       summary.appendChild(summaryCopy);
@@ -384,13 +601,50 @@
       } else if (displayStatus === 'RUNNING') {
         detailView.appendChild(create('p', 'workflow-step-running', NODE_PROGRESS_LABELS[step.nodeId] || 'Этап выполняется…'));
       } else {
+        var kindRow = create('p', 'exec-kind');
+        kindRow.appendChild(create('span', 'exec-kind-name', NODE_KINDS[step.nodeId] || 'Этап'));
+        kindRow.appendChild(create('span', 'exec-kind-status is-' + String(step.status || '').toLowerCase(), statusLabel(step.status)));
+        detailView.appendChild(kindRow);
+
         detailView.appendChild(create('p', 'workflow-step-outcome', stepOutcome(step)));
-        var meta = create('div', 'workflow-step-meta');
-        meta.appendChild(create('span', '', 'Начало: ' + formatDate(step.startedAt)));
-        meta.appendChild(create('span', '', 'Длительность: ' + formatDuration(step.startedAt, step.finishedAt)));
-        meta.appendChild(create('span', '', 'Статус: ' + statusLabel(step.status)));
-        detailView.appendChild(meta);
+
+        if (step.nodeId === 'check-budget') {
+          var condition = conditionBlock(step);
+          detailView.appendChild(condition);
+        }
+
+        if (step.nodeId === 'send-telegram') {
+          var telegram = telegramBlock(step, result && result.lead);
+          detailView.appendChild(telegram);
+        }
+
+        var inputRows = inputFacts(step, result && result.lead);
+        if (inputRows.length) {
+          var inputRowsBlock = [('INPUT')].concat(inputRows);
+          var inputBlock = kvBlock('exec-input', inputRowsBlock);
+          detailView.appendChild(inputBlock);
+        }
+
+        var actionBlock = create('div', 'exec-block exec-action');
+        actionBlock.appendChild(create('p', 'exec-block-label', 'ACTION'));
+        actionBlock.appendChild(create('code', 'exec-code', NODE_ACTIONS[step.nodeId] || step.nodeId));
+        detailView.appendChild(actionBlock);
+
+        if (step.nodeId !== 'check-budget' && step.nodeId !== 'send-telegram') {
+          var rows = outputRows(step);
+          if (rows.length) {
+            var outputBlockRows = [('OUTPUT')].concat(rows);
+            detailView.appendChild(kvBlock('exec-output', outputBlockRows));
+          }
+        }
+
         if (step.error) detailView.appendChild(create('p', 'workflow-step-error', step.error));
+
+        var meta = create('div', 'workflow-step-meta');
+        meta.appendChild(create('span', '', 'Started: ' + formatDate(step.startedAt)));
+        meta.appendChild(create('span', '', 'Duration: ' + formatDuration(step.startedAt, step.finishedAt)));
+        meta.appendChild(create('span', '', 'Status: ' + statusLabel(step.status)));
+        detailView.appendChild(meta);
       }
       details.appendChild(detailView);
       item.appendChild(details);
@@ -453,10 +707,6 @@
     var resultState = failed ? 'FAILED' : (complete ? 'SUCCESS' : (state.playbackActive ? 'RUNNING' : 'PENDING'));
     setBadge(nodes.resultStatus, resultState);
 
-    var heading = failed
-      ? 'Сценарий завершился с ошибкой.'
-      : (complete ? 'Заявка обработана.' : (state.playbackActive ? 'Показываем обработку по этапам.' : 'Ждём результат обработки.'));
-    nodes.resultView.appendChild(create('p', 'demo-result-copy', heading));
     if (state.playbackActive) {
       var execution = primaryExecution(result);
       var currentIndex = execution && execution.steps ? Math.min(Math.floor(state.playbackPhase / 2), execution.steps.length - 1) : -1;
@@ -464,14 +714,76 @@
       nodes.resultView.appendChild(create('p', 'demo-result-copy',
         currentNode ? (NODE_PROGRESS_LABELS[currentNode] || 'Сохраняем результат этапа…') : 'Запускаем сценарий…'));
       nodes.resultView.appendChild(create('p', 'demo-result-note', 'Этапы можно раскрыть выше и посмотреть, что именно произошло внутри процесса.'));
-    } else if (complete) {
-      nodes.resultView.appendChild(create('p', 'demo-result-copy', 'В демо виден не только итог, но и каждый сохранённый шаг: условие, создание клиента, уведомление и обновление заявки.'));
-    } else if (!lead) {
-      nodes.resultView.appendChild(create('p', 'demo-result-copy', 'После ответа боту здесь появится результат сценария.'));
-    } else if (failed) {
+      return;
+    }
+
+    if (!lead) {
+      nodes.resultView.appendChild(create('p', 'demo-result-copy', 'Ждём результат обработки.'));
+      nodes.resultView.appendChild(create('p', 'demo-result-note', 'После ответов боту здесь появится сводка: время выполнения, количество этапов и созданная карточка клиента.'));
+      return;
+    }
+
+    if (failed) {
+      nodes.resultView.appendChild(create('p', 'demo-result-copy', 'Сценарий завершился с ошибкой.'));
       var error = executions.find(function (execution) { return execution.error; });
       nodes.resultView.appendChild(create('p', 'demo-result-copy', error ? error.error : 'Откройте журнал выполнения для подробностей.'));
+      return;
     }
+
+    if (!complete) {
+      nodes.resultView.appendChild(create('p', 'demo-result-copy', 'Заявка получена. Обрабатываем…'));
+      nodes.resultView.appendChild(create('p', 'demo-result-note', 'Система проверяет условия и выполняет сценарий по этапам — сводка появится здесь автоматически.'));
+      return;
+    }
+
+    var current = primaryExecution(result);
+    var duration = formatDuration(current && current.startedAt, current && current.finishedAt);
+    var steps = current && current.steps ? current.steps : [];
+    var total = steps.length;
+    var terminalCount = steps.filter(function (step) { return isTerminalStatus(step.status); }).length;
+    var clientStep = findStep(current, 'create-client');
+    var telegramStep = findStep(current, 'send-telegram');
+    var clientCreated = Boolean(clientStep && clientStep.output && clientStep.output.created === true);
+    var delivered = Boolean(telegramStep && telegramStep.output && telegramStep.output.delivered === true);
+
+    var heading = create('p', 'demo-result-copy demo-result-heading');
+    heading.appendChild(document.createTextNode('Готово — система обработала заявку за '));
+    heading.appendChild(create('strong', '', duration));
+    heading.appendChild(document.createTextNode('.'));
+    nodes.resultView.appendChild(heading);
+
+    var metrics = create('div', 'demo-result-metrics');
+    [
+      [terminalCount + ' / ' + total, 'этапов завершено'],
+      [duration, 'обработка'],
+      ['0', 'ручных действий'],
+      [clientCreated ? '1' : '0', 'клиент создан'],
+    ].forEach(function (metric) {
+      var cell = create('div', 'demo-result-metric');
+      cell.appendChild(create('b', '', metric[0]));
+      cell.appendChild(create('span', '', metric[1]));
+      metrics.appendChild(cell);
+    });
+    nodes.resultView.appendChild(metrics);
+
+    var subhead = create('p', 'demo-result-subhead', 'Что получила система');
+    nodes.resultView.appendChild(subhead);
+
+    var checklist = create('ul', 'demo-result-check');
+    [
+      ['Заявка сохранена', true, ''],
+      ['Клиент создан автоматически', clientCreated, clientCreated ? '' : '— ветка «Нет»: создание пропущено'],
+      ['Менеджер уведомлён', delivered, delivered ? '' : '— уведомление не было доставлено'],
+      ['История выполнения сохранена', true, ''],
+    ].forEach(function (check) {
+      var item = create('li', check[1] ? 'is-ok' : 'is-off');
+      item.appendChild(create('span', '', check[0]));
+      if (check[2]) item.appendChild(create('small', '', check[2]));
+      checklist.appendChild(item);
+    });
+    nodes.resultView.appendChild(checklist);
+
+    nodes.resultView.appendChild(create('p', 'demo-result-note', 'Реальные входные и выходные данные каждого шага доступны в журнале выше.'));
   }
 
   function render(result) {
@@ -479,6 +791,7 @@
     state.session = result && result.session ? result.session : state.session;
     renderSession();
     renderFlow(result);
+    renderBranch(result);
     renderLead(result);
     renderWorkflow(result);
     renderExecutions(result);
@@ -527,8 +840,9 @@
     state.playbackActive = true;
     state.playbackPhase = 0;
     history.replaceState({}, '', state.example ? '?example=1' : '?token=' + encodeURIComponent(state.token));
+    setStep(3);
     render(result);
-    setStatus('Заявка получена. Показываем, как система обрабатывает её по этапам…', 'loading');
+    setStatus('Заявка получена. Обрабатываем…', 'loading');
 
     var dashboard = document.querySelector('.demo-dashboard');
     if (dashboard) dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -568,11 +882,17 @@
       if (initial && startPlayback(result, false)) return;
       if (initial) state.playbackRequested = false;
       render(result);
-      setStatus(
-        isFinished(result) ? 'Сценарий завершён. Все этапы сохранены.' : (result.lead ? 'Заявка получена. Следим за обработкой…' : 'Ожидаем ответы в Telegram…'),
-        isFinished(result) ? 'success' : 'loading'
-      );
-      if (isFinished(result)) stopPolling();
+      var finished = isFinished(result);
+      if (finished) {
+        setStepFinished();
+        setStatus('Готово — система обработала заявку. Все этапы сохранены.', 'success');
+      } else if (result.lead) {
+        setStep(3);
+        setStatus('Заявка получена. Обрабатываем…', 'loading');
+      } else {
+        setStatus('Ожидаем ответы в Telegram…', 'loading');
+      }
+      if (finished) stopPolling();
     }).then(function () {
       return true;
     }).catch(function (error) {
@@ -588,6 +908,23 @@
     state.pollingTimer = window.setInterval(function () { refreshResult(false); }, 1600);
   }
 
+  function startDemoSession() {
+    stopPolling();
+    stopPlayback();
+    setStatus('Создаём изолированную демо-сессию…', 'loading');
+    request('/demo/session', { method: 'POST' }).then(function (session) {
+      var token = extractToken(session.telegramUrl);
+      if (!token) throw new Error('Сервер не вернул токен демо-сессии.');
+      state.token = token;
+      state.session = session;
+      history.replaceState({}, '', '?token=' + encodeURIComponent(token));
+      render({ session: session, lead: null, executions: [] });
+      setStep(2);
+      setStatus('Сессия создана. Ответьте на вопросы бота, затем вернитесь на сайт — заявка появится здесь.', 'loading');
+      startPolling();
+    }).catch(showError);
+  }
+
   function showExample(event) {
     if (event) event.preventDefault();
     stopPolling();
@@ -600,7 +937,7 @@
     nodes.actions.hidden = true;
     if (!startPlayback(SAMPLE_RESULT, true)) {
       render(SAMPLE_RESULT);
-      setStatus('Демонстрационный пример без подключения к серверу и Telegram.', 'success');
+      setStatus('Готовый пример без подключения к серверу и Telegram.', 'success');
     }
   }
 
@@ -623,26 +960,19 @@
     }
 
     if (state.token) {
+      setStep(2);
       setStatus('Загружаем демо-сессию…');
       refreshResult(true).then(function (ok) { if (ok && !state.playbackStarted) startPolling(); });
       return;
     }
 
-    setStatus('Создаём изолированную демо-сессию…');
-    request('/demo/session', { method: 'POST' }).then(function (session) {
-      var token = extractToken(session.telegramUrl);
-      if (!token) throw new Error('Сервер не вернул токен демо-сессии.');
-      state.token = token;
-      state.session = session;
-      history.replaceState({}, '', '?token=' + encodeURIComponent(token));
-      render({ session: session, lead: null, executions: [] });
-      setStatus('Сессия создана. Откройте Telegram и ответьте на вопросы бота.');
-      startPolling();
-    }).catch(showError);
+    setStep(1);
+    renderSession();
+    setStatus('Выберите способ запуска демо.');
   }
 
+  nodes.start.addEventListener('click', startDemoSession);
   nodes.example.addEventListener('click', showExample);
-  nodes.fallback.addEventListener('click', showExample);
   nodes.retry.addEventListener('click', startNewSession);
   nodes.workflowExpand.addEventListener('click', function () { setWorkflowExpanded(true); });
   nodes.workflowCollapse.addEventListener('click', function () { setWorkflowExpanded(false); });

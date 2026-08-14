@@ -73,20 +73,34 @@
     <div class="wrap">
       <a class="demo-back" href="../">← Вернуться в portfolio</a>
       <p class="kicker">Живой демо-кейс</p>
-      <h1 class="h-display">От заявки<br>до результата</h1>
+      <h1 class="h-display">Посмотрите, как заявка<br>проходит автоматизацию</h1>
       <p class="lead demo-lead">
-        Запустите сессию, ответьте боту в Telegram и вернитесь по кнопке обратно: сайт покажет обработку заявки по этапам и сохранит подробности каждого шага.
+        Запустите демо через Telegram-бота, ответьте на несколько вопросов и увидите, как система сама обработает заявку и уведомит менеджера.
       </p>
+      <p class="demo-hint">≈ 1 минута · без регистрации</p>
 
-      <div class="demo-actions" id="demo-actions" hidden>
-        <a class="btn btn-primary btn-lg" id="telegram-open" href="#" target="_blank" rel="noopener">
+      <div class="demo-cta-row" id="demo-actions" hidden>
+        <button class="btn btn-primary btn-lg" type="button" id="demo-start">
+          Запустить демо
+          <span aria-hidden="true">→</span>
+        </button>
+        <button class="btn btn-ghost btn-lg" type="button" id="demo-example">Посмотреть готовый пример</button>
+        <a class="btn btn-primary btn-lg" id="telegram-open" href="#" target="_blank" rel="noopener" hidden>
           Открыть Telegram-бота
           <span aria-hidden="true">↗</span>
         </a>
-        <button class="btn btn-ghost btn-lg" type="button" id="demo-example">Посмотреть пример</button>
       </div>
-      <a class="demo-fallback" id="demo-fallback" href="?example=1">Посмотреть пример без запуска Telegram →</a>
-      <p class="demo-status" id="demo-status" role="status" aria-live="polite">Подключаем демо-сессию…</p>
+
+      <div class="demo-step-guide" id="demo-step-guide" hidden>
+        <p class="demo-step-label" id="demo-step-label">Шаг 1 из 3</p>
+        <ol class="demo-steps" id="demo-steps" aria-label="Как проходит демо">
+          <li data-step="1">Запустите демо</li>
+          <li data-step="2">Откройте Telegram и ответьте на вопросы</li>
+          <li data-step="3">Посмотрите обработку заявки</li>
+        </ol>
+      </div>
+
+      <p class="demo-status" id="demo-status" role="status" aria-live="polite">Выберите способ запуска демо.</p>
     </div>
   </section>
 
@@ -108,6 +122,33 @@
           <span class="demo-flow-line"></span>
           <span class="demo-flow-node" data-flow-node="update-lead"><b>05</b><strong>Результат</strong><small>сохранён</small></span>
         </div>
+      </div>
+
+      <div class="demo-branch" id="demo-branch" hidden aria-label="Решение сценария">
+        <div class="demo-branch-question">
+          <div>
+            <span class="kicker">Решение сценария</span>
+            <strong id="branch-question">Бюджет больше 50 000 ₽?</strong>
+          </div>
+          <code class="demo-branch-rule" id="branch-rule">budget &gt; 50000</code>
+        </div>
+        <div class="demo-branch-arms">
+          <div class="demo-branch-arm" id="branch-yes">
+            <span class="demo-branch-mark">ДА</span>
+            <div>
+              <strong>Создать клиента</strong>
+              <small id="branch-yes-note">client.create</small>
+            </div>
+          </div>
+          <div class="demo-branch-arm" id="branch-no">
+            <span class="demo-branch-mark">НЕТ</span>
+            <div>
+              <strong>Создание клиента пропущено</strong>
+              <small id="branch-no-note">client.create · skipped</small>
+            </div>
+          </div>
+        </div>
+        <p class="demo-branch-reason" id="branch-reason"></p>
       </div>
 
       <div class="demo-error" id="demo-error" hidden role="alert">
@@ -176,7 +217,7 @@
             <h2 class="h-section" id="demo-benefits-title">Меньше рутины. Больше контроля.</h2>
           </div>
           <p>
-            Такая автоматизация не просто передаёт данные между сервисами — она ускоряет реакцию команды и делает каждый шаг проверяемым.
+            Ровно то, что вы видели в демо: заявка из Telegram дошла до системы, прошла проверку условия, выбрала ветку и завершилась уведомлением менеджера — без единого ручного действия.
           </p>
         </div>
         <div class="demo-benefits-grid">
@@ -188,19 +229,33 @@
           <article class="demo-benefit-card">
             <span>02</span>
             <h3>Заявки не теряются</h3>
-            <p>Каждое обращение получает статус, сохраняется в системе и остаётся доступным для проверки.</p>
+            <p>Каждая заявка автоматически сохраняется и остаётся доступной для проверки.</p>
           </article>
           <article class="demo-benefit-card">
             <span>03</span>
-            <h3>Быстрее первый ответ</h3>
-            <p>Команда получает уведомление сразу после проверки, пока интерес клиента ещё высокий.</p>
+            <h3>Быстрый первый ответ</h3>
+            <p>После проверки система сразу запускает нужное действие и уведомляет ответственного.</p>
           </article>
           <article class="demo-benefit-card">
             <span>04</span>
             <h3>Прозрачный процесс</h3>
-            <p>По журналу видно, какой этап выполнен, что было проверено и где потребуется внимание.</p>
+            <p>Каждый шаг выполнения сохраняется и доступен для просмотра.</p>
           </article>
         </div>
+      </section>
+
+      <section class="demo-architecture reveal" aria-labelledby="demo-architecture-title" style="--d:5">
+        <div class="demo-architecture-head">
+          <p class="kicker">Как это работает</p>
+          <h2 class="h-section" id="demo-architecture-title">Путь заявки по системе</h2>
+        </div>
+        <ol class="demo-architecture-list" aria-label="Слои автоматизации">
+          <li><b>Telegram</b><small>Получил данные</small></li>
+          <li><b>Backend</b><small>Проверил условия</small></li>
+          <li><b>Automation Engine</b><small>Выполнил workflow</small></li>
+          <li><b>PostgreSQL</b><small>Сохранил результат</small></li>
+          <li><b>Telegram Manager</b><small>Уведомил менеджера</small></li>
+        </ol>
       </section>
     </div>
   </section>
@@ -220,6 +275,6 @@
 </footer>
 
 <script src="../assets/js/main.js" defer></script>
-<script src="demo.js?v=20260814-3" defer></script>
+<script src="demo.js?v=20260814-4" defer></script>
 </body>
 </html>
