@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo автоматизации продаж — Hippilokkery</title>
+<meta name="description" content="Интерактивная demo-сессия: заявка из Telegram проходит через workflow и возвращается с результатом.">
+<meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)">
+<meta name="automation-api-base" content="http://localhost:3000/api">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="../assets/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/onest-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/fonts.css">
+<link rel="stylesheet" href="../assets/css/styles.css">
+<link rel="stylesheet" href="demo.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('hl-theme');
+      var dark = saved ? saved === 'dark' : !window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    } catch (e) { /* остаётся тема из атрибута */ }
+    document.documentElement.classList.add('js');
+  })();
+</script>
+</head>
+
+<body>
+<a class="skip-link" href="#main">К основному содержимому</a>
+
+<header class="site-header" id="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="../#top" aria-label="Hippilokkery, на главную">
+      <span class="brand-mark" aria-hidden="true">HL</span>
+      <span class="brand-name">Hippilokkery</span>
+    </a>
+
+    <nav class="nav-desktop" aria-label="Навигация demo">
+      <a href="../#services">Услуги</a>
+      <a href="../#work">Кейсы</a>
+      <a href="../#contact">Контакт</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" type="button" id="theme-toggle" aria-label="Переключить тему">
+        <span class="ico ico-sun" aria-hidden="true">☼</span>
+        <span class="ico ico-moon" aria-hidden="true">◐</span>
+      </button>
+      <a class="btn btn-primary btn-sm header-cta" href="../#contact">Обсудить проект</a>
+      <button class="icon-btn nav-burger" type="button" id="nav-toggle"
+              aria-label="Меню" aria-expanded="false" aria-controls="mobile-nav">
+        <span class="ico-open" aria-hidden="true">☰</span>
+        <span class="ico-close" aria-hidden="true">×</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-nav" id="mobile-nav" hidden>
+  <nav class="wrap mobile-nav-inner" aria-label="Мобильная навигация">
+    <a href="../#services"><span>Услуги</span><span aria-hidden="true">↗</span></a>
+    <a href="../#work"><span>Кейсы</span><span aria-hidden="true">↗</span></a>
+    <a href="../#contact"><span>Контакт</span><span aria-hidden="true">↗</span></a>
+    <a class="btn btn-primary mobile-nav-cta" href="../#contact">Обсудить проект</a>
+  </nav>
+</div>
+
+<main id="main" class="demo-main">
+  <span id="top"></span>
+
+  <section class="demo-hero">
+    <div class="wrap">
+      <a class="demo-back" href="../">← Вернуться в portfolio</a>
+      <p class="kicker">Живой demo-кейс</p>
+      <h1 class="h-display">От заявки<br>до результата</h1>
+      <p class="lead demo-lead">
+        Запустите сессию, ответьте боту в Telegram и посмотрите, как заявка проходит через workflow с сохранением каждого шага.
+      </p>
+
+      <div class="demo-actions" id="demo-actions" hidden>
+        <a class="btn btn-primary btn-lg" id="telegram-open" href="#" target="_blank" rel="noopener">
+          Открыть Telegram
+          <span aria-hidden="true">↗</span>
+        </a>
+        <button class="btn btn-ghost btn-lg" type="button" id="demo-example">Посмотреть пример</button>
+      </div>
+      <a class="demo-fallback" id="demo-fallback" href="?example=1">Посмотреть пример без запуска Telegram →</a>
+      <p class="demo-status" id="demo-status" role="status" aria-live="polite">Подключаем demo-сессию…</p>
+    </div>
+  </section>
+
+  <section class="demo-dashboard section">
+    <div class="wrap">
+      <div class="demo-flow-preview" aria-label="Workflow demo preview">
+        <div class="demo-flow-head">
+          <span class="kicker">LIVE WORKFLOW</span>
+          <span class="demo-flow-state"><i aria-hidden="true"></i> 4 STEPS</span>
+        </div>
+        <div class="demo-flow-track" aria-hidden="true">
+          <span class="demo-flow-node is-active"><b>01</b><strong>Lead</strong><small>Telegram</small></span>
+          <span class="demo-flow-line"></span>
+          <span class="demo-flow-node"><b>02</b><strong>Filter</strong><small>budget</small></span>
+          <span class="demo-flow-line"></span>
+          <span class="demo-flow-node"><b>03</b><strong>Notify</strong><small>message</small></span>
+          <span class="demo-flow-line"></span>
+          <span class="demo-flow-node"><b>04</b><strong>Result</strong><small>saved</small></span>
+        </div>
+      </div>
+
+      <div class="demo-error" id="demo-error" hidden role="alert">
+        <strong>Demo временно недоступна</strong>
+        <span id="demo-error-text">Backend не ответил.</span>
+        <button class="btn btn-ghost btn-sm" type="button" id="demo-retry">Повторить</button>
+      </div>
+
+      <div class="demo-grid">
+        <article class="panel demo-panel reveal">
+          <div class="demo-panel-head">
+            <div>
+              <p class="kicker">01 · входящие данные</p>
+              <h2 class="demo-panel-title">Заявка</h2>
+            </div>
+            <span class="demo-badge" id="lead-status">Ожидание</span>
+          </div>
+          <div class="demo-content" id="lead-view"></div>
+        </article>
+
+        <article class="panel demo-panel reveal" style="--d:1">
+          <div class="demo-panel-head">
+            <div>
+              <p class="kicker">02 · workflow</p>
+              <h2 class="demo-panel-title">Маршрут обработки</h2>
+            </div>
+            <span class="demo-badge demo-badge-neutral">lead.created</span>
+          </div>
+          <ol class="workflow-list" id="workflow-view"></ol>
+        </article>
+
+        <article class="panel demo-panel demo-panel-wide reveal" style="--d:2">
+          <div class="demo-panel-head">
+            <div>
+              <p class="kicker">03 · execution log</p>
+              <h2 class="demo-panel-title">Прогресс выполнения</h2>
+            </div>
+            <span class="demo-badge" id="execution-status">Ожидание</span>
+          </div>
+          <div class="execution-list" id="execution-view"></div>
+        </article>
+      </div>
+
+      <article class="demo-result panel reveal" id="demo-result-panel" style="--d:3">
+        <div class="demo-panel-head">
+          <div>
+            <p class="kicker">04 · outcome</p>
+            <h2 class="demo-panel-title">Результат</h2>
+          </div>
+          <span class="demo-badge" id="result-status">Ожидание</span>
+        </div>
+        <div id="demo-result-view" class="demo-result-view"></div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <span class="brand-mark" aria-hidden="true">HL</span>
+      <div>
+        <p class="footer-name">Hippilokkery</p>
+        <p class="footer-role">Сайты, боты, автоматизация</p>
+      </div>
+    </div>
+    <a class="btn btn-primary btn-sm" href="../#contact">Обсудить проект</a>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js" defer></script>
+<script src="demo.js" defer></script>
+</body>
+</html>

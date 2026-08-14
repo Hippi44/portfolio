@@ -205,6 +205,67 @@
      7. ФОРМА. Валидация своими сообщениями, сборка текста, ссылка в Telegram.
   ------------------------------------------------------------------------- */
 
+  var caseModal = $('automation-case-modal');
+  var caseTriggers = Array.prototype.slice.call(document.querySelectorAll('.case-card-trigger'));
+  var caseModalLastFocused = null;
+
+  function setCaseModal(open, restoreFocus) {
+    if (!caseModal) return;
+    caseModal.hidden = !open;
+    document.body.classList.toggle('is-locked', open);
+
+    if (open) {
+      caseModalLastFocused = document.activeElement;
+      var closeButton = caseModal.querySelector('.case-modal-close');
+      if (closeButton) closeButton.focus();
+      return;
+    }
+
+    if (restoreFocus && caseModalLastFocused && caseModalLastFocused.isConnected) {
+      caseModalLastFocused.focus();
+    }
+    caseModalLastFocused = null;
+  }
+
+  if (caseModal && caseTriggers.length) {
+    caseTriggers.forEach(function (trigger) {
+      trigger.addEventListener('click', function () { setCaseModal(true, false); });
+      trigger.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        setCaseModal(true, false);
+      });
+    });
+
+    caseModal.addEventListener('click', function (e) {
+      if (e.target.closest('[data-case-modal-close]')) {
+        setCaseModal(false, true);
+      } else if (e.target.closest('a[href="#contact"]')) {
+        setCaseModal(false, false);
+      }
+    });
+
+    caseModal.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setCaseModal(false, true);
+      if (e.key !== 'Tab') return;
+
+      var focusable = Array.prototype.slice.call(
+        caseModal.querySelectorAll('button, a[href]')
+      ).filter(function (el) { return !el.disabled; });
+      if (!focusable.length) return;
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
   var form = $('lead-form');
   if (!form) return;
 

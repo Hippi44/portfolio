@@ -159,16 +159,15 @@
     </div>
   </section>
   <!-- =============================== УСЛУГИ =============================== -->
-  <!-- Layout-семейство: асимметричная бенто-сетка. Ровно 3 ячейки под 3 услуги,
-       первая широкая с картинкой, две узкие снизу. Пустых ячеек нет. -->
+  <!-- Layout-семейство: две карточки услуг рядом на десктопе и в одну колонку на телефоне. -->
   <section class="section services" id="services">
     <div class="wrap">
       <header class="section-head reveal">
-        <h2 class="h-section">Три вещи, которые я делаю хорошо</h2>
+        <h2 class="h-section">Две вещи, которые я делаю хорошо</h2>
         <p class="lead">Берусь за то, что могу довести до работающего результата и потом поддерживать.</p>
       </header>
 
-      <div class="services-grid">
+      <div class="services-grid services-grid--two">
 
         <article class="svc svc-wide reveal">
           <div class="svc-media">
@@ -222,36 +221,6 @@
               <li>Приём заявок и уведомления вам</li>
               <li>Оплата, рассылки, база клиентов</li>
               <li>Хостинг, мониторинг, исходники вам</li>
-            </ul>
-            <a class="link-arrow" href="#contact">
-              Обсудить проект
-              <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
-            </a>
-          </div>
-        </article>
-
-        <article class="svc svc-tile reveal" style="--d:2">
-          <div class="svc-media svc-media-tile">
-            <figure class="shot" data-slot="automation">
-              <img class="shot-img" src="assets/img/automaticProces.webp"
-                   alt="Схема автоматизации: Telegram, формы, таблицы и почта связаны с триггером, отчётами и уведомлениями"
-                   width="1672" height="941" loading="lazy" decoding="async"
-                   onerror="this.closest('.shot').classList.add('shot-empty')">
-              <img class="shot-img shot-img-dark" src="assets/img/automaticProcesDark.webp"
-                   alt="" aria-hidden="true"
-                   width="1672" height="941" loading="lazy" decoding="async">
-            </figure>
-          </div>
-          <div class="svc-body">
-            <h3 class="h-card">Автоматизация процессов</h3>
-            <p class="svc-summary">
-              Связываю сайт, CRM, таблицы и мессенджеры, чтобы данные ходили сами и никто не копировал их руками.
-            </p>
-            <ul class="ticks">
-              <li>Разбор текущей рутины по шагам</li>
-              <li>Сценарии в n8n или Make</li>
-              <li>Интеграции по API и вебхукам</li>
-              <li>Инструкция и передача команде</li>
             </ul>
             <a class="link-arrow" href="#contact">
               Обсудить проект
@@ -370,16 +339,24 @@
           </a>
         </article>
 
-        <article class="case case-narrow case-slot reveal" style="--d:2">
-          <div class="case-card">
+        <article class="case case-narrow reveal" style="--d:2">
+          <div class="case-card case-card-trigger" role="button" tabindex="0"
+               aria-haspopup="dialog" aria-controls="automation-case-modal">
             <figure class="shot case-shot" data-slot="case-3">
-              <img src="assets/img/work-slot-3.webp" alt="" width="900" height="760" loading="lazy" decoding="async" onerror="this.closest('.shot').classList.add('shot-empty')">
+              <img src="assets/img/automation.png"
+                   alt="Интерактивный кейс: автоматизация продаж через Telegram-бота и дашборд"
+                   width="1436" height="1096" loading="lazy" decoding="async"
+                   onerror="this.closest('.shot').classList.add('shot-empty')">
             </figure>
             <div class="case-meta">
-              <h3 class="case-title">Место под кейс</h3>
-              <p class="case-kind">Автоматизация</p>
+              <h3 class="case-title">Автоматизация</h3>
+              <p class="case-kind">Интерактивный кейс</p>
             </div>
-            <p class="case-note">Здесь появится задача клиента, что сделал и чем всё закончилось.</p>
+            <p class="case-note">Заявка проходит через Telegram-бота, систему автоматизации и дашборд без ручной передачи данных.</p>
+            <span class="case-open-hint">
+              Открыть кейс
+              <svg class="ico" aria-hidden="true"><use href="#i-arrow-up-right"></use></svg>
+            </span>
           </div>
         </article>
 
@@ -600,6 +577,59 @@
 
     </div>
   </section>
+  <div class="case-modal" id="automation-case-modal" hidden>
+    <div class="case-modal-backdrop" data-case-modal-close></div>
+    <section class="case-modal-dialog" role="dialog" aria-modal="true"
+             aria-labelledby="automation-case-title" aria-describedby="automation-case-summary">
+      <button class="case-modal-close" type="button" data-case-modal-close aria-label="Закрыть кейс">
+        <svg class="ico" aria-hidden="true"><use href="#i-x"></use></svg>
+      </button>
+      <p class="kicker">Кейс · интерактивный сценарий</p>
+      <h2 class="h-section" id="automation-case-title">Автоматизация продаж</h2>
+      <p class="case-modal-summary" id="automation-case-summary">
+        Заявка приходит в Telegram-бота, проходит проверку и автоматически появляется в системе вместе с результатом обработки.
+      </p>
+
+      <div class="case-modal-body">
+        <div class="case-modal-step">
+          <span class="case-modal-step-no">01</span>
+          <div>
+            <strong>Заявка</strong>
+            <p>Клиент отвечает на вопросы бота и оставляет задачу с бюджетом.</p>
+          </div>
+        </div>
+        <div class="case-modal-step">
+          <span class="case-modal-step-no">02</span>
+          <div>
+            <strong>Автоматизация</strong>
+            <p>Система проверяет данные, создаёт клиента и отправляет уведомления.</p>
+          </div>
+        </div>
+        <div class="case-modal-step">
+          <span class="case-modal-step-no">03</span>
+          <div>
+            <strong>Результат</strong>
+            <p>Вся цепочка фиксируется в дашборде, а статус можно проверить в demo.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="case-modal-actions">
+        <a class="btn btn-primary" href="demo/">
+          Приступить к демо
+          <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+        </a>
+        <a class="btn btn-ghost" href="demo/?example=1">
+          Посмотреть пример
+          <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+        </a>
+        <a class="link-arrow" href="#contact">
+          Обсудить проект
+          <svg class="ico" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+        </a>
+      </div>
+    </section>
+  </div>
 </main>
 
 <footer class="site-footer">
