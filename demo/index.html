@@ -75,7 +75,7 @@
       <p class="kicker">Живой демо-кейс</p>
       <h1 class="h-display">Посмотрите, как заявка<br>проходит автоматизацию</h1>
       <p class="lead demo-lead">
-        Запустите демо через Telegram-бота, ответьте на несколько вопросов и увидите, как система сама обработает заявку и уведомит менеджера.
+        Запустите демо, ответьте на пару вопросов в Telegram — и посмотрите, как заявка сама проходит весь путь: от сообщения клиента до уведомления менеджера.
       </p>
       <p class="demo-hint">≈ 1 минута · без регистрации</p>
 
@@ -89,15 +89,6 @@
           Открыть Telegram-бота
           <span aria-hidden="true">↗</span>
         </a>
-      </div>
-
-      <div class="demo-step-guide" id="demo-step-guide" hidden>
-        <p class="demo-step-label" id="demo-step-label">Шаг 1 из 3</p>
-        <ol class="demo-steps" id="demo-steps" aria-label="Как проходит демо">
-          <li data-step="1">Запустите демо</li>
-          <li data-step="2">Откройте Telegram и ответьте на вопросы</li>
-          <li data-step="3">Посмотрите обработку заявки</li>
-        </ol>
       </div>
 
       <p class="demo-status" id="demo-status" role="status" aria-live="polite">Выберите способ запуска демо.</p>
@@ -124,33 +115,6 @@
         </div>
       </div>
 
-      <div class="demo-branch" id="demo-branch" hidden aria-label="Решение сценария">
-        <div class="demo-branch-question">
-          <div>
-            <span class="kicker">Решение сценария</span>
-            <strong id="branch-question">Бюджет больше 50 000 ₽?</strong>
-          </div>
-          <code class="demo-branch-rule" id="branch-rule">budget &gt; 50000</code>
-        </div>
-        <div class="demo-branch-arms">
-          <div class="demo-branch-arm" id="branch-yes">
-            <span class="demo-branch-mark">ДА</span>
-            <div>
-              <strong>Создать клиента</strong>
-              <small id="branch-yes-note">client.create</small>
-            </div>
-          </div>
-          <div class="demo-branch-arm" id="branch-no">
-            <span class="demo-branch-mark">НЕТ</span>
-            <div>
-              <strong>Создание клиента пропущено</strong>
-              <small id="branch-no-note">client.create · skipped</small>
-            </div>
-          </div>
-        </div>
-        <p class="demo-branch-reason" id="branch-reason"></p>
-      </div>
-
       <div class="demo-error" id="demo-error" hidden role="alert">
         <strong>Демо временно недоступна</strong>
         <span id="demo-error-text">Сервер не ответил.</span>
@@ -172,59 +136,30 @@
         <article class="panel demo-panel reveal" style="--d:1">
           <div class="demo-panel-head">
             <div>
-              <p class="kicker">02 · сценарий обработки</p>
-              <h2 class="demo-panel-title">Что произошло на каждом этапе</h2>
+              <p class="kicker">02 · результат</p>
+              <h2 class="demo-panel-title">Результат</h2>
             </div>
-            <span class="demo-badge" id="workflow-status">Ожидание</span>
+            <span class="demo-badge" id="result-status">Ожидание</span>
           </div>
-          <div class="workflow-toolbar" id="workflow-toolbar" hidden>
-            <p>Нажмите на этап, чтобы посмотреть, что именно произошло во время обработки.</p>
-            <div class="workflow-toolbar-actions">
-              <button class="workflow-toggle" type="button" id="workflow-expand">Развернуть все</button>
-              <button class="workflow-toggle" type="button" id="workflow-collapse">Свернуть все</button>
-            </div>
-          </div>
-          <ol class="workflow-list" id="workflow-view"></ol>
-        </article>
-
-        <article class="panel demo-panel demo-panel-wide reveal" style="--d:2">
-          <div class="demo-panel-head">
-            <div>
-              <p class="kicker">03 · журнал выполнения</p>
-              <h2 class="demo-panel-title">Ход обработки заявки</h2>
-            </div>
-            <span class="demo-badge" id="execution-status">Ожидание</span>
-          </div>
-          <div class="execution-list" id="execution-view"></div>
+          <div class="demo-result-view" id="demo-result-view"></div>
         </article>
       </div>
 
-      <article class="demo-result panel reveal" id="demo-result-panel" style="--d:3">
-        <div class="demo-panel-head">
-          <div>
-            <p class="kicker">04 · результат</p>
-            <h2 class="demo-panel-title">Результат</h2>
-          </div>
-          <span class="demo-badge" id="result-status">Ожидание</span>
-        </div>
-        <div id="demo-result-view" class="demo-result-view"></div>
-      </article>
-
-      <section class="demo-benefits reveal" aria-labelledby="demo-benefits-title" style="--d:4">
+      <section class="demo-benefits reveal" aria-labelledby="demo-benefits-title" style="--d:2">
         <div class="demo-benefits-head">
           <div>
             <p class="kicker">Что получает бизнес</p>
             <h2 class="h-section" id="demo-benefits-title">Меньше рутины. Больше контроля.</h2>
           </div>
           <p>
-            Ровно то, что вы видели в демо: заявка из Telegram дошла до системы, прошла проверку условия, выбрала ветку и завершилась уведомлением менеджера — без единого ручного действия.
+            Ровно то, что вы видели: заявка из Telegram дошла до системы, прошла проверку условия и завершилась уведомлением менеджера — без единого ручного действия.
           </p>
         </div>
         <div class="demo-benefits-grid">
           <article class="demo-benefit-card">
             <span>01</span>
             <h3>Экономия времени</h3>
-            <p>Менеджеру не нужно вручную переносить заявку, создавать карточку клиента и дублировать уведомления.</p>
+            <p>Менеджеру не нужно вручную переносить заявку и создавать карточку клиента.</p>
           </article>
           <article class="demo-benefit-card">
             <span>02</span>
@@ -234,28 +169,14 @@
           <article class="demo-benefit-card">
             <span>03</span>
             <h3>Быстрый первый ответ</h3>
-            <p>После проверки система сразу запускает нужное действие и уведомляет ответственного.</p>
+            <p>Менеджер сразу получает уведомление и подключается к работе.</p>
           </article>
           <article class="demo-benefit-card">
             <span>04</span>
             <h3>Прозрачный процесс</h3>
-            <p>Каждый шаг выполнения сохраняется и доступен для просмотра.</p>
+            <p>Каждый шаг выполнения сохраняется — легко проверить, что и когда произошло.</p>
           </article>
         </div>
-      </section>
-
-      <section class="demo-architecture reveal" aria-labelledby="demo-architecture-title" style="--d:5">
-        <div class="demo-architecture-head">
-          <p class="kicker">Как это работает</p>
-          <h2 class="h-section" id="demo-architecture-title">Путь заявки по системе</h2>
-        </div>
-        <ol class="demo-architecture-list" aria-label="Слои автоматизации">
-          <li><b>Telegram</b><small>Получил данные</small></li>
-          <li><b>Backend</b><small>Проверил условия</small></li>
-          <li><b>Automation Engine</b><small>Выполнил workflow</small></li>
-          <li><b>PostgreSQL</b><small>Сохранил результат</small></li>
-          <li><b>Telegram Manager</b><small>Уведомил менеджера</small></li>
-        </ol>
       </section>
     </div>
   </section>
@@ -275,6 +196,6 @@
 </footer>
 
 <script src="../assets/js/main.js" defer></script>
-<script src="demo.js?v=20260814-4" defer></script>
+<script src="demo.js?v=20260814-5" defer></script>
 </body>
 </html>
