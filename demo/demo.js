@@ -116,7 +116,7 @@
         { id: 's1', nodeId: 'lead-created', position: 0, status: 'SUCCESS', input: { source: 'Telegram' }, output: { received: true }, error: null, startedAt: new Date(Date.now() - 5200).toISOString(), finishedAt: new Date(Date.now() - 4700).toISOString() },
         { id: 's2', nodeId: 'check-budget', position: 1, status: 'SUCCESS', input: { budgetAmount: 150000 }, output: { passed: true, expected: 50000, actual: 150000 }, error: null, startedAt: new Date(Date.now() - 4400).toISOString(), finishedAt: new Date(Date.now() - 3700).toISOString() },
         { id: 's3', nodeId: 'create-client', position: 2, status: 'SUCCESS', input: { name: 'Марина' }, output: { clientId: 'example-client', created: true }, error: null, startedAt: new Date(Date.now() - 3400).toISOString(), finishedAt: new Date(Date.now() - 2600).toISOString() },
-        { id: 's4', nodeId: 'send-telegram', position: 3, status: 'SKIPPED', input: { channel: 'Telegram' }, output: { delivered: false, reason: 'Пример без внешней доставки' }, error: null, startedAt: new Date(Date.now() - 2300).toISOString(), finishedAt: new Date(Date.now() - 1600).toISOString() },
+        { id: 's4', nodeId: 'send-telegram', position: 3, status: 'SUCCESS', input: { channel: 'Telegram' }, output: { delivered: true }, error: null, startedAt: new Date(Date.now() - 2300).toISOString(), finishedAt: new Date(Date.now() - 1600).toISOString() },
         { id: 's5', nodeId: 'update-lead', position: 4, status: 'SUCCESS', input: { status: 'PROCESSING' }, output: { status: 'COMPLETED' }, error: null, startedAt: new Date(Date.now() - 1300).toISOString(), finishedAt: new Date(Date.now() - 400).toISOString() },
       ],
     }],
@@ -158,11 +158,6 @@
     return (milliseconds / 1000).toFixed(milliseconds < 10000 ? 1 : 0).replace('.', ',') + ' с';
   }
 
-  function formatJson(value) {
-    if (value === null || value === undefined) return 'Нет данных';
-    try { return JSON.stringify(value, null, 2); } catch (e) { return String(value); }
-  }
-
   function isTerminalStatus(status) {
     return ['SUCCESS', 'FAILED', 'SKIPPED'].indexOf(status) !== -1;
   }
@@ -195,19 +190,19 @@
   function stepOutcome(step) {
     if (step.error) return 'Этап остановлен с ошибкой: ' + step.error;
     var output = step.output && typeof step.output === 'object' ? step.output : {};
-    if (step.nodeId === 'lead-created') return 'Заявка зарегистрирована, событие для автоматизации создано.';
+    if (step.nodeId === 'lead-created') return 'Заявка получена из Telegram и зарегистрирована в системе.';
     if (step.nodeId === 'check-budget') {
-      if (output.passed) return 'Условие выполнено: бюджет подходит для создания карточки клиента.';
-      return 'Условие не выполнено: дополнительные действия для высокого бюджета пропущены.';
+      if (output.passed) return 'Бюджет подходит — карточка клиента создаётся автоматически.';
+      return 'Бюджет ниже порога сценария — заявка передаётся менеджеру напрямую.';
     }
     if (step.nodeId === 'create-client') {
       return output.created === false
-        ? 'Карточка клиента уже существовала, повторное создание безопасно пропущено.'
+        ? 'Карточка клиента уже была в базе — повторное создание не требуется.'
         : 'Карточка клиента создана автоматически из данных заявки.';
     }
     if (step.nodeId === 'send-telegram') {
       return output.delivered === false
-        ? 'Внешнее уведомление не доставлено, но заявка продолжила обработку и сохранилась.'
+        ? 'Уведомление не доставлено, но заявка продолжила обработку и сохранилась.'
         : 'Уведомление отправлено ответственному в Telegram.';
     }
     if (step.nodeId === 'update-lead') return 'Заявке присвоен финальный статус «Готово».';
@@ -245,6 +240,17 @@
         node.classList.add('is-complete');
       }
     });
+
+    var track = document.getElementById('demo-flow-track');
+    if (track) {
+      track.classList.toggle('is-finished', Boolean(
+        !state.playbackActive &&
+        result && result.executions && result.executions.length &&
+        result.executions.every(function (execution) {
+          return ['SUCCESS', 'FAILED', 'SKIPPED'].indexOf(execution.status) !== -1;
+        })
+      ));
+    }
 
     if (!steps.length) {
       if (nodes.flowNodes[0]) nodes.flowNodes[0].classList.add('is-active');
@@ -362,7 +368,7 @@
       var summaryCopy = create('span', 'workflow-step-copy');
       var label = NODE_LABELS[step.nodeId] || step.nodeId;
       if (!state.playbackActive && step.nodeId === 'check-budget' && step.output && typeof step.output === 'object') {
-        label += step.output.passed ? ' · условие выполнено' : ' · условие не выполнено';
+        label += step.output.passed ? ' · бюджет подходит' : ' · бюджет ниже порога';
       }
       summaryCopy.appendChild(create('strong', 'workflow-step-name', label));
       summaryCopy.appendChild(create('small', 'workflow-step-summary-text',
@@ -384,15 +390,6 @@
         meta.appendChild(create('span', '', 'Длительность: ' + formatDuration(step.startedAt, step.finishedAt)));
         meta.appendChild(create('span', '', 'Статус: ' + statusLabel(step.status)));
         detailView.appendChild(meta);
-
-        var data = create('div', 'workflow-step-data');
-        [['Входные данные', step.input], ['Результат', step.output]].forEach(function (pair) {
-          var dataBlock = create('div', 'workflow-data-block');
-          dataBlock.appendChild(create('span', 'workflow-data-label', pair[0]));
-          dataBlock.appendChild(create('pre', 'workflow-data-value', formatJson(pair[1])));
-          data.appendChild(dataBlock);
-        });
-        detailView.appendChild(data);
         if (step.error) detailView.appendChild(create('p', 'workflow-step-error', step.error));
       }
       details.appendChild(detailView);
@@ -412,11 +409,11 @@
       return;
     }
 
-    executions.forEach(function (execution) {
+    executions.forEach(function (execution, index) {
       var executionStatus = displayExecutionStatus(execution);
       var row = create('div', 'execution-row');
       var meta = create('div', 'execution-meta');
-      meta.appendChild(create('span', 'execution-id', 'Операция #' + String(execution.id).slice(-8)));
+      meta.appendChild(create('span', 'execution-id', executions.length > 1 ? 'Обработка #' + (index + 1) : 'Обработка заявки'));
       var badge = create('span');
       setBadge(badge, executionStatus);
       meta.appendChild(badge);

@@ -88,6 +88,7 @@
   margin-top: 1rem;
 }
 .demo-flow-node {
+  position: relative;
   display: grid;
   gap: .22rem;
   min-width: 6.5rem;
@@ -95,35 +96,109 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-input);
   background: color-mix(in srgb, var(--surface-2) 74%, transparent);
+  transition: border-color .25s var(--ease), background .25s var(--ease), transform .25s var(--ease);
+}
+.demo-flow-node::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  z-index: -1;
+  border-radius: var(--radius-input);
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 68%);
+  opacity: 0;
+  transition: opacity .3s var(--ease);
 }
 .demo-flow-node b {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
   color: var(--ink-3);
-  font: .65rem/1 'JetBrains Mono', ui-monospace, monospace;
+  font: .62rem/1 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
+  transition: background .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease), transform .25s var(--ease);
 }
 .demo-flow-node strong { color: var(--ink); font-size: .86rem; }
 .demo-flow-node small { color: var(--ink-3); font-size: .72rem; }
 .demo-flow-node.is-active {
   border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent);
+  transform: translateY(-2px);
 }
+.demo-flow-node.is-active::after { opacity: 1; }
 .demo-flow-node.is-active strong { color: var(--accent-text); }
+.demo-flow-node.is-active b {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #071009;
+}
 .demo-flow-node.is-active { animation: flow-node-pulse 1.1s ease-in-out infinite; }
+.demo-flow-node.is-active b { animation: flow-number-spin .5s var(--ease); }
 .demo-flow-node.is-complete {
   border-color: color-mix(in srgb, #37a169 45%, var(--line));
   background: color-mix(in srgb, #37a169 8%, var(--surface-2));
 }
-.demo-flow-node.is-complete b,
+.demo-flow-node.is-complete b {
+  border-color: #37a169;
+  background: #37a169;
+  color: #f4fbff;
+}
+.demo-flow-node.is-complete b::after { content: '✓'; }
+.demo-flow-node.is-complete b { animation: flow-pop .4s cubic-bezier(.2, .9, .3, 1.4); }
+.demo-flow-node.is-complete::after { opacity: .6; }
 .demo-flow-node.is-complete strong { color: #25814f; }
 .demo-flow-node.is-skipped { opacity: .65; }
 .demo-flow-node.is-failed { border-color: color-mix(in srgb, #d84a4a 55%, var(--line)); }
-[data-theme="dark"] .demo-flow-node.is-complete b,
 [data-theme="dark"] .demo-flow-node.is-complete strong { color: #7ad69e; }
+[data-theme="dark"] .demo-flow-node.is-complete b { background: #37a169; border-color: #37a169; color: #071009; }
 .demo-flow-line {
+  position: relative;
   align-self: center;
   flex: 1 1 1rem;
   min-width: .45rem;
-  height: 1px;
-  background: color-mix(in srgb, var(--accent) 45%, var(--line));
+  height: 2px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--line-2) 60%, transparent);
+}
+.demo-flow-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #37a169, #7ad69e);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .45s var(--ease);
+}
+.demo-flow-node.is-complete + .demo-flow-line::after { transform: scaleX(1); }
+.demo-flow-node.is-complete + .demo-flow-line::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
+  transform: translateX(-100%);
+  animation: flow-line-shine 1.15s var(--ease) .35s;
+}
+.demo-flow-track.is-finished .demo-flow-preview {
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--ink) 10%, transparent), 0 0 0 1px color-mix(in srgb, #37a169 22%, transparent);
+}
+@keyframes flow-pop {
+  0% { transform: scale(.4); }
+  60% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+@keyframes flow-number-spin {
+  0% { transform: rotate(-120deg) scale(.6); }
+  100% { transform: rotate(0) scale(1); }
+}
+@keyframes flow-line-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 .demo-status.is-loading::before { animation: demo-pulse 1.4s ease-in-out infinite; }
 .demo-status.is-success::before { background: #37a169; box-shadow: 0 0 0 4px color-mix(in srgb, #37a169 16%, transparent); }
@@ -309,29 +384,6 @@
   color: var(--ink-3);
   font: .68rem/1.4 'JetBrains Mono', ui-monospace, monospace;
 }
-.workflow-step-data { display: grid; gap: .7rem; }
-.workflow-data-block { min-width: 0; }
-.workflow-data-label {
-  display: block;
-  margin-bottom: .35rem;
-  color: var(--ink-3);
-  font: .68rem/1.3 'JetBrains Mono', ui-monospace, monospace;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-}
-.workflow-data-value {
-  max-height: 14rem;
-  margin: 0;
-  padding: .75rem;
-  overflow: auto;
-  border: 1px solid var(--line);
-  border-radius: .6rem;
-  background: var(--surface);
-  color: var(--ink-2);
-  font: .7rem/1.55 'JetBrains Mono', ui-monospace, monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
 .workflow-step-error {
   padding: .7rem .8rem;
   border-radius: .6rem;
@@ -395,7 +447,6 @@
 @media (min-width: 900px) {
   .demo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .demo-panel-wide { grid-column: 1 / -1; }
-  .workflow-step-data { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .demo-benefits-head { grid-template-columns: minmax(0, 1.1fr) minmax(20rem, .9fr); }
   .demo-benefits-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -423,5 +474,9 @@
 @media (prefers-reduced-motion: reduce) {
   .demo-status.is-loading::before,
   .demo-flow-node.is-active,
-  .workflow-step.is-running .workflow-step-marker { animation: none; }
+  .demo-flow-node.is-active b,
+  .demo-flow-node.is-complete b,
+  .demo-flow-node.is-complete + .demo-flow-line::after,
+  .demo-flow-node.is-complete + .demo-flow-line::before,
+  .workflow-step.is-running .workflow-step-marker { animation: none; transition: none; }
 }
