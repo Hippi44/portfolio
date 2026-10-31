@@ -874,6 +874,9 @@ ul { list-style: none; padding: 0; }
   aspect-ratio: 16 / 10;
   border-radius: 10px;    /* внешний радиус минус внутренний отступ, углы концентричны */
 }
+.case-narrow .case-shot {
+  aspect-ratio: 16 / 9;
+}
 
 .case-meta {
   display: flex;
@@ -910,7 +913,7 @@ ul { list-style: none; padding: 0; }
   .case-feature { grid-column: 1 / -1; }
   /* Пропорции обложек совпадают с размерами из комментария в разметке */
   .case-feature .case-shot { aspect-ratio: 16 / 10; }
-  .case-narrow .case-shot { aspect-ratio: 6 / 5; }
+  .case-narrow .case-shot { aspect-ratio: 16 / 9; }
 }
 
 /* ---------------------------------------------------------------------------
